@@ -26,6 +26,47 @@ function pqrst(phase: number): number {
   );
 }
 
+// One monomorphic VT complex over a normalized beat phase in [0, 1): a broad,
+// bizarre, repetitive wide-QRS deflection — a tall asymmetric R running into a
+// wide S and a fused T. Deliberately NOT a symmetric sine: the slopes differ and
+// the positive and negative excursions are unequal, the visual hallmark of VT.
+function vtComplex(phase: number): number {
+  return (
+    1.0 * gauss(phase, 0.34, 0.055) + // broad R
+    -0.55 * gauss(phase, 0.5, 0.06) + // wide S
+    0.18 * gauss(phase, 0.68, 0.07) // fused T
+  );
+}
+
+// Ventricular fibrillation: a chaotic carrier in the VF band (≈3.5–11 Hz) whose
+// amplitude itself swells and fades over time — fibrillation is irregular in both
+// frequency AND amplitude. The carrier coefficients sum to 1 and the envelope peaks
+// at 1, so the output stays bounded by `amplitude` (coarse vs fine VF is that one
+// scale; the morphology is identical, a continuum).
+function vfSample(amplitude: number, t: number): number {
+  const carrier =
+    0.42 * Math.sin(34.5 * t) +
+    0.28 * Math.sin(53.1 * t + 1.3) +
+    0.18 * Math.sin(71.2 * t + 2.7) +
+    0.12 * Math.sin(22.3 * t + 0.5);
+  // Slow, irregular envelope so the trace swells and fades instead of holding a
+  // steady band. The floor stays well above zero so fibrillation never momentarily
+  // flatlines into something that could read as asystole.
+  const envelope = 0.65 + 0.22 * Math.sin(1.6 * t) + 0.13 * Math.sin(0.9 * t + 1.4);
+  return amplitude * envelope * carrier;
+}
+
+// Asystole is electrically flat, but a real monitor never draws a perfect line: it
+// shows faint baseline wander and a little measurement noise. Kept tiny so it stays
+// unmistakably a flat line, far below even fine fibrillation.
+function asystoleArtifact(t: number): number {
+  return (
+    0.018 * Math.sin(0.8 * t) +
+    0.012 * Math.sin(2.3 * t + 1.0) +
+    0.006 * Math.sin(13.7 * t)
+  );
+}
+
 function beatPhase(rhythm: Rhythm, t: number): number {
   const period = 60 / (rhythm.hf ?? 60);
   return frac(t / period);
@@ -35,20 +76,14 @@ function beatPhase(rhythm: Rhythm, t: number): number {
 export function ekgAmplitude(rhythm: Rhythm, t: number): number {
   switch (rhythm.waveform) {
     case "asystolie":
-      return 0;
+      return asystoleArtifact(t);
     case "sinus":
       return pqrst(beatPhase(rhythm, t));
     case "vt":
-      // Broad monomorphic, fast waveform — a rate but no organized complexes.
-      return 0.85 * Math.sin(TWO_PI * beatPhase(rhythm, t));
-    case "vf": {
-      // Chaotic sum of incommensurate sines, bounded by the fibrillation amplitude.
-      const chaos =
-        0.5 * Math.sin(13 * t) +
-        0.3 * Math.sin(27 * t + 1) +
-        0.2 * Math.sin(41 * t + 2);
-      return (rhythm.amplitude ?? 1) * chaos;
-    }
+      // Broad monomorphic, fast wide-complex waveform — a rate but no organized PQRST.
+      return vtComplex(beatPhase(rhythm, t));
+    case "vf":
+      return vfSample(rhythm.amplitude ?? 1, t);
   }
 }
 

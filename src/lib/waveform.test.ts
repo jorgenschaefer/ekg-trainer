@@ -16,9 +16,14 @@ function sample(fn: (t: number) => number, from: number, to: number, step = 0.00
 }
 
 describe("ekgAmplitude", () => {
-  test("asystole is a flat line", () => {
-    const flat = sample((t) => ekgAmplitude(RHYTHMS.asystolie, t), 0, 3);
-    expect(Math.max(...flat.map(Math.abs))).toBe(0);
+  test("asystole is near-flat: only a faint baseline artifact, far below fine VF", () => {
+    const r = RHYTHMS.asystolie;
+    const peak = Math.max(...sample((t) => ekgAmplitude(r, t), 0, 6).map(Math.abs));
+    // a real monitor never draws a mathematically perfect line — there is faint interference
+    expect(peak).toBeGreaterThan(0);
+    // but it stays a flat-ish line, clearly below even fine fibrillation
+    expect(peak).toBeLessThan(0.1);
+    expect(peak).toBeLessThan(RHYTHMS["vf-fein"].amplitude!);
   });
 
   test("sinus has a tall QRS once per beat and a quiet baseline between beats", () => {
@@ -43,9 +48,34 @@ describe("ekgAmplitude", () => {
     expect(Math.max(...values.map(Math.abs))).toBeLessThanOrEqual(r.amplitude! + 0.001);
   });
 
-  test("pVT is a fast, non-flat waveform", () => {
-    const values = sample((t) => ekgAmplitude(RHYTHMS.pvt, t), 0, 1);
-    expect(Math.max(...values) - Math.min(...values)).toBeGreaterThan(0.5);
+  test("fibrillation amplitude wanders — it swells and fades, never a steady envelope", () => {
+    const r = RHYTHMS["vf-grob"];
+    const windowPeaks: number[] = [];
+    for (let w = 0; w < 8; w += 0.25) {
+      windowPeaks.push(Math.max(...sample((t) => ekgAmplitude(r, t), w, w + 0.25).map(Math.abs)));
+    }
+    // tall stretches reach near full height...
+    expect(Math.max(...windowPeaks)).toBeGreaterThan(0.6);
+    // ...yet there are clearly quieter stretches — it swells and fades rather than
+    // holding a steady band (but the floor stays above zero: never a flat gap)
+    expect(Math.min(...windowPeaks)).toBeGreaterThan(0.1);
+    expect(Math.max(...windowPeaks) / Math.min(...windowPeaks)).toBeGreaterThan(1.8);
+  });
+
+  test("fine VF is the same chaos at a clearly smaller amplitude than coarse", () => {
+    const peak = (id: "vf-fein" | "vf-grob") =>
+      Math.max(...sample((t) => ekgAmplitude(RHYTHMS[id], t), 0, 8).map(Math.abs));
+    expect(peak("vf-fein")).toBeLessThan(peak("vf-grob") * 0.5);
+  });
+
+  test("pVT is a broad asymmetric complex, not a symmetric sine wave", () => {
+    const values = sample((t) => ekgAmplitude(RHYTHMS.pvt, t), 0, 2);
+    const max = Math.max(...values);
+    const min = Math.min(...values);
+    // fast and non-flat
+    expect(max - min).toBeGreaterThan(0.5);
+    // a pure sine is symmetric (|max| ≈ |min|); a VT complex deflects asymmetrically
+    expect(Math.abs(max + min)).toBeGreaterThan(0.2);
   });
 });
 
@@ -126,7 +156,9 @@ describe("ekgFrameSample (what the EKG draws each frame)", () => {
       spikeArtifact(0),
     );
     // once the spike has passed it falls back to the running curve
-    expect(ekgFrameSample(RHYTHMS.asystolie, 0.37, frame())).toBe(0);
+    expect(ekgFrameSample(RHYTHMS.asystolie, 0.37, frame())).toBe(
+      ekgAmplitude(RHYTHMS.asystolie, 0.37),
+    );
   });
 });
 
