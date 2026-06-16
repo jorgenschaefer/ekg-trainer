@@ -8,6 +8,9 @@ import styles from "./Waveforms.module.css";
 
 // Seconds of trace across the full canvas width (sweep period).
 const WINDOW_S = 5;
+// A gap between frames larger than this means the loop stalled (hidden tab,
+// occluded/blurred window, rAF throttling, sleep) rather than ran normally.
+const STALL_GAP_S = 0.2;
 const EKG_COLOR = "#0c9a43";
 const PLETH_COLOR = "#0a8f99";
 
@@ -40,6 +43,7 @@ export default function Waveforms({
     const heads: Record<string, { x: number; y: number }> = {};
     let prevNonce = live.current.spikeNonce;
     let spikeStart = -Infinity;
+    let prevNow = -Infinity;
     let raf = 0;
 
     function drawSweep(
@@ -81,6 +85,18 @@ export default function Waveforms({
 
     function frame() {
       const now = (performance.now() - startedAt) / 1000;
+      // The loop stalled and resumed: performance.now() kept running while rAF
+      // was paused, so the sweep head jumped far ahead. The 10px gap eraser only
+      // wipes a sliver, so a connecting stroke would streak the old trace across
+      // the screen. Fully clear and drop the heads so the sweep restarts clean.
+      if (now - prevNow > STALL_GAP_S) {
+        for (const canvas of [ekgRef.current, plethRef.current]) {
+          const ctx = canvas?.getContext("2d");
+          if (canvas && ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        for (const trace of Object.keys(heads)) delete heads[trace];
+      }
+      prevNow = now;
       const { state, spikeNonce } = live.current;
       if (spikeNonce !== prevNonce) {
         prevNonce = spikeNonce;
@@ -106,23 +122,9 @@ export default function Waveforms({
       raf = requestAnimationFrame(frame);
     }
 
-    // A hidden tab pauses rAF while performance.now() keeps running, so on return
-    // the sweep head jumps far ahead and the 10px gap eraser leaves the old trace
-    // behind as artefacts. Fully clear and drop the heads so the sweep restarts clean.
-    function onVisible() {
-      if (document.hidden) return;
-      for (const canvas of [ekgRef.current, plethRef.current]) {
-        const ctx = canvas?.getContext("2d");
-        if (canvas && ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
-      }
-      for (const trace of Object.keys(heads)) delete heads[trace];
-    }
-    document.addEventListener("visibilitychange", onVisible);
-
     raf = requestAnimationFrame(frame);
     return () => {
       cancelAnimationFrame(raf);
-      document.removeEventListener("visibilitychange", onVisible);
     };
   }, []);
 
