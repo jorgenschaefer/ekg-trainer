@@ -80,6 +80,15 @@ describe("useVollbildmodus", () => {
     expect(result.current.active).toBe(true);
   });
 
+  test("best-effort: still requests the landscape lock even when fullscreen entry is denied", async () => {
+    mocked.enterFullscreen.mockRejectedValue(new Error("denied"));
+    const { result } = mount();
+    await act(async () => {
+      await result.current.toggle();
+    });
+    expect(mocked.lockLandscape).toHaveBeenCalled();
+  });
+
   test("does not request a landscape lock when fullscreen is unavailable", async () => {
     mocked.supportsFullscreen.mockReturnValue(false);
     const { result } = mount();
