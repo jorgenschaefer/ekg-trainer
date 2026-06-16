@@ -1,0 +1,179 @@
+.screen {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  width: 100%;
+  background: var(--monitor-bg);
+  color: var(--monitor-text);
+  border: 1px solid #e2e3df;
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  font-variant-numeric: tabular-nums;
+  /* Size everything inside relative to the screen box so the device looks right —
+     and never overflows — whether it renders large (monitor) or small (admin mirror). */
+  container-type: size;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 1.2cqh 2cqw;
+  border-bottom: 1px solid #e7e8e3;
+  font-size: 2.6cqh;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+.mode {
+  background: #1a1c1a;
+  color: var(--monitor-bg);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.lead {
+  color: #6b6e68;
+  /* Push the clock + Vollbild toggle into a right-aligned group; the small topbar
+     gap keeps them together at the far edge. */
+  margin-right: auto;
+}
+
+/* Icon-only Vollbild toggle: loud dark CTA when inactive (echoes the MONITOR badge),
+   quiet when active. Sized in cqh so it scales with the device screen. */
+.fullscreen {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6cqh;
+  border: none;
+  border-radius: 4px;
+  background: #1a1c1a;
+  color: var(--monitor-bg);
+  cursor: pointer;
+  line-height: 0;
+}
+
+.fullscreen svg {
+  width: 3.4cqh;
+  height: 3.4cqh;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.fullscreen:hover {
+  background: #000;
+}
+
+.fullscreen:focus-visible {
+  outline: 2px solid #1a1c1a;
+  outline-offset: 2px;
+}
+
+.fullscreenActive {
+  background: transparent;
+  color: #6b6e68;
+}
+
+.fullscreenActive:hover {
+  background: #1a1c1a;
+}
+
+.body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 17cqw;
+  /* Pin the single row to the available height so its content can't balloon the
+     grid (which pushed the pleth lane and the Puls readout off-screen). */
+  grid-template-rows: minmax(0, 1fr);
+  min-height: 0;
+}
+
+.waves {
+  min-width: 0;
+  min-height: 0;
+  border-right: 1px solid #ececc9;
+}
+
+.numbers {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding: 1.5cqh 1.6cqw;
+  gap: 1cqh;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.readout {
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: baseline;
+  column-gap: 6px;
+  min-width: 0;
+}
+
+.readoutLabel {
+  grid-column: 1;
+  font-size: 2.6cqh;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.readoutValue {
+  grid-column: 1 / -1;
+  font-family: "Barlow Condensed", system-ui, sans-serif;
+  font-size: 9cqh;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.readoutUnit {
+  grid-column: 2;
+  grid-row: 1;
+  font-size: 2.3cqh;
+  color: #8a8d86;
+  justify-self: end;
+}
+
+.hf {
+  color: var(--ekg-green);
+}
+
+.spo2,
+.pulse {
+  color: var(--pulsoxi-cyan);
+}
+
+.pill {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: rgba(26, 28, 26, 0.82);
+  color: #fff;
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.spinner {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

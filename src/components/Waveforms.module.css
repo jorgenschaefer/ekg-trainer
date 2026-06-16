@@ -1,0 +1,20 @@
+.stack {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.ekg {
+  flex: 2;
+  width: 100%;
+  min-height: 0;
+  display: block;
+}
+
+.pleth {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  display: block;
+  border-top: 1px solid #ececc9;
+}

@@ -1,0 +1,264 @@
+.page {
+  min-height: 100dvh;
+  background: #ededea;
+  color: var(--monitor-text);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  background: #fff;
+  border-bottom: 1px solid #e2e3df;
+}
+
+.title {
+  font-weight: 600;
+}
+
+.adminBadge {
+  background: var(--admin-blue);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.codeChip {
+  margin-left: auto;
+  font-family: "Barlow Condensed", system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+  font-size: 1.7rem;
+  letter-spacing: 0.18em;
+  background: var(--monitor-bg);
+  border: 1px solid #cfd0cb;
+  border-radius: 8px;
+  padding: 2px 12px;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 18px;
+  padding: 18px;
+  align-items: start;
+}
+
+/* Side-by-side only when there's room for a comfortable mirror next to the fixed
+   360-px control column; otherwise stack the controls under the monitor. */
+@media (max-width: 1024px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mirror {
+  min-width: 0;
+}
+
+.connecting {
+  color: #6b6e68;
+  font-weight: 600;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.error {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fdecea;
+  color: var(--error-red);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.block {
+  border: 1px solid #e2e3df;
+  border-radius: 12px;
+  background: #fff;
+  padding: 14px;
+  margin: 0;
+}
+
+.blockTitle {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #6b6e68;
+  padding: 0 4px;
+}
+
+.family {
+  margin-top: 10px;
+}
+
+.familyTitle {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.rhythmGrid {
+  display: grid;
+  gap: 8px;
+}
+
+.rhythmButton {
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 10px 8px;
+  border: 1px solid #cfd0cb;
+  border-radius: 8px;
+  background: var(--monitor-bg);
+  color: var(--monitor-text);
+  cursor: pointer;
+}
+
+.rhythmButton[aria-pressed="true"] {
+  background: var(--admin-blue);
+  border-color: var(--admin-blue);
+  color: #fff;
+}
+
+.rhythmButton:focus-visible,
+.drueckt:focus-visible,
+.spike:focus-visible,
+.module:focus-visible {
+  outline: 2px solid var(--admin-blue);
+  outline-offset: 2px;
+}
+
+.drueckt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  font: inherit;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 16px;
+  border: 1px solid #cfd0cb;
+  border-radius: 10px;
+  background: var(--monitor-bg);
+  color: var(--monitor-text);
+  cursor: pointer;
+}
+
+.druecktOn {
+  background: #1a1c1a;
+  color: #fff;
+  border-color: #1a1c1a;
+}
+
+.runningDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--ekg-green);
+  animation: blink 1s steps(2, start) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+.spike {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  margin-top: 12px;
+  font: inherit;
+  font-weight: 700;
+  padding: 12px;
+  border: 2px solid var(--error-red);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--error-red);
+  cursor: pointer;
+}
+
+.spikeHint {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #6b6e68;
+}
+
+.module {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin-top: 10px;
+  font: inherit;
+  font-weight: 600;
+  padding: 10px 12px;
+  border: 1px solid #e2e3df;
+  border-radius: 10px;
+  background: var(--monitor-bg);
+  color: var(--monitor-text);
+  cursor: pointer;
+}
+
+.swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex: none;
+}
+
+.ekg {
+  background: var(--ekg-green);
+}
+
+.pulsoxi {
+  background: var(--pulsoxi-cyan);
+}
+
+.moduleLabel {
+  text-align: left;
+}
+
+.track {
+  margin-left: auto;
+  width: 40px;
+  height: 22px;
+  border-radius: 999px;
+  background: #cfd0cb;
+  position: relative;
+  transition: background 0.12s;
+  flex: none;
+}
+
+.trackOn {
+  background: var(--admin-blue);
+}
+
+.knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.12s;
+}
+
+.trackOn .knob {
+  transform: translateX(18px);
+}

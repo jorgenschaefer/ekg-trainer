@@ -1,0 +1,29 @@
+.frame {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: #ededea;
+}
+
+.device {
+  width: 100%;
+  max-width: 960px;
+}
+
+/* In Vollbildmodus the frame owns the whole screen: drop the size cap and grow the
+   16:10 device as large as fits, centred on black so any letterbox bars are quiet. */
+.frame:fullscreen {
+  background: #000;
+}
+
+.frame:fullscreen .device {
+  max-width: none;
+  width: min(100%, calc(100dvh * 16 / 10));
+}
+
+.connecting {
+  text-align: center;
+  color: #6b6e68;
+  font-weight: 600;
+}

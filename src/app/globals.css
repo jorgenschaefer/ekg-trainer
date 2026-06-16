@@ -1,0 +1,18 @@
+:root {
+  --monitor-bg: #fbfbf8;
+  --monitor-text: #1a1c1a;
+  --ekg-green: #0c9a43;
+  --pulsoxi-cyan: #0a8f99;
+  --admin-blue: #0c5fb0;
+  --error-red: #c0392b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
