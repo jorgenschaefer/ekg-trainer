@@ -68,6 +68,13 @@ export function useVollbildmodus(): Vollbildmodus {
       } catch {
         // Best-effort: fall through to the wake lock even if fullscreen is denied.
       }
+      try {
+        // Landscape is the intended posture. Locking only works in fullscreen and
+        // is silently ignored on iOS — best-effort, never block the rest.
+        await fs.lockLandscape();
+      } catch {
+        // Unsupported or denied — ignore.
+      }
     }
     await acquireWakeLock();
     setActive(true);

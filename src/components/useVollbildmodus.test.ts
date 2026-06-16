@@ -18,6 +18,7 @@ beforeEach(() => {
   mocked.isFullscreen.mockReturnValue(false);
   mocked.enterFullscreen.mockResolvedValue(undefined);
   mocked.exitFullscreen.mockResolvedValue(undefined);
+  mocked.lockLandscape.mockResolvedValue(undefined);
   mocked.acquireWakeLock.mockImplementation(async () => {
     const sentinel = { release: vi.fn().mockResolvedValue(undefined) };
     sentinels.push(sentinel);
@@ -59,6 +60,33 @@ describe("useVollbildmodus", () => {
     expect(mocked.enterFullscreen).toHaveBeenCalledWith(el);
     expect(mocked.acquireWakeLock).toHaveBeenCalled();
     expect(result.current.active).toBe(true);
+  });
+
+  test("entering fullscreen also requests a landscape lock", async () => {
+    const { result } = mount();
+    await act(async () => {
+      await result.current.toggle();
+    });
+    expect(mocked.lockLandscape).toHaveBeenCalled();
+  });
+
+  test("best-effort: a failed landscape lock still acquires the wake lock and activates", async () => {
+    mocked.lockLandscape.mockRejectedValue(new Error("unsupported"));
+    const { result } = mount();
+    await act(async () => {
+      await result.current.toggle();
+    });
+    expect(mocked.acquireWakeLock).toHaveBeenCalled();
+    expect(result.current.active).toBe(true);
+  });
+
+  test("does not request a landscape lock when fullscreen is unavailable", async () => {
+    mocked.supportsFullscreen.mockReturnValue(false);
+    const { result } = mount();
+    await act(async () => {
+      await result.current.toggle();
+    });
+    expect(mocked.lockLandscape).not.toHaveBeenCalled();
   });
 
   test("on a wake-lock-only device it skips fullscreen but still activates", async () => {

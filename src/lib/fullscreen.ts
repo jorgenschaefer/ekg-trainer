@@ -25,3 +25,7 @@ export function exitFullscreen(): Promise<void> {
 export function acquireWakeLock(): Promise<WakeLockSentinel> {
   return navigator.wakeLock.request("screen");
 }
+
+export function lockLandscape(): Promise<void> {
+  return screen.orientation.lock("landscape");
+}
