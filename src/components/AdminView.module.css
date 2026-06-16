@@ -55,11 +55,17 @@
   }
 }
 
+/* The mirror is a bounded preview, not a viewport-filler: it carries its own ~16:10
+   box (the shape the device no longer fixes itself) so the screen has a height to
+   fill next to the controls. */
 .mirror {
   min-width: 0;
+  aspect-ratio: 16 / 10;
+  display: grid;
 }
 
 .connecting {
+  margin: auto;
   color: #6b6e68;
   font-weight: 600;
 }

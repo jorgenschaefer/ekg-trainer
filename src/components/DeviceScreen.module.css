@@ -1,7 +1,10 @@
 .screen {
   position: relative;
-  aspect-ratio: 16 / 10;
+  /* No fixed shape of its own — the screen fills whatever box its caller gives it.
+     The monitor hands it the whole viewport (fluid); the admin mirror hands it a
+     bounded ~16:10 preview box. */
   width: 100%;
+  height: 100%;
   background: var(--monitor-bg);
   color: var(--monitor-text);
   border: 1px solid #e2e3df;
