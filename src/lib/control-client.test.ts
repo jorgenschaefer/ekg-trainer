@@ -5,7 +5,9 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe("sendControl", () => {
   test("POSTs the command to the session with the admin token", async () => {
-    const fetchMock = vi.fn(() => Promise.resolve(new Response("{}", { status: 200 })));
+    const fetchMock = vi.fn(() =>
+      Promise.resolve(new Response("{}", { status: 200 })),
+    );
     vi.stubGlobal("fetch", fetchMock);
 
     await sendControl("123456", "secret", { type: "setRhythm", rhythm: "pvt" });
@@ -21,7 +23,10 @@ describe("sendControl", () => {
   });
 
   test("rejects when the server refuses the command", async () => {
-    vi.stubGlobal("fetch", vi.fn(() => Promise.resolve(new Response("{}", { status: 403 }))));
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() => Promise.resolve(new Response("{}", { status: 403 }))),
+    );
     await expect(
       sendControl("123456", "wrong", { type: "spike" }),
     ).rejects.toThrow();

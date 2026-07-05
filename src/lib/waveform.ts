@@ -52,7 +52,8 @@ function vfSample(amplitude: number, t: number): number {
   // Slow, irregular envelope so the trace swells and fades instead of holding a
   // steady band. The floor stays well above zero so fibrillation never momentarily
   // flatlines into something that could read as asystole.
-  const envelope = 0.65 + 0.22 * Math.sin(1.6 * t) + 0.13 * Math.sin(0.9 * t + 1.4);
+  const envelope =
+    0.65 + 0.22 * Math.sin(1.6 * t) + 0.13 * Math.sin(0.9 * t + 1.4);
   return amplitude * envelope * carrier;
 }
 
@@ -90,7 +91,7 @@ export function ekgAmplitude(rhythm: Rhythm, t: number): number {
 // SpO2 plethysmography pulse in [0, 1]; flat (0) without peripheral output.
 export function plethAmplitude(rhythm: Rhythm, t: number): number {
   if (!rhythm.generatesOutput) return 0;
-  return Math.pow(Math.max(0, Math.sin(TWO_PI * beatPhase(rhythm, t))), 2);
+  return Math.max(0, Math.sin(TWO_PI * beatPhase(rhythm, t))) ** 2;
 }
 
 // Thorax-compression artifact that overrides the EKG while "Drückt" is on — large

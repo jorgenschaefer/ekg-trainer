@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import styles from "./StartCard.module.css";
 
 const JOIN_ERROR = "Code unbekannt oder Sitzung abgelaufen.";
@@ -69,7 +69,9 @@ export default function StartCard() {
             autoComplete="off"
             placeholder="----"
             value={code}
-            onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 4))}
+            onChange={(e) =>
+              setCode(e.target.value.replace(/\D/g, "").slice(0, 4))
+            }
           />
           <button
             type="submit"

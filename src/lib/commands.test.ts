@@ -22,17 +22,23 @@ describe("parseCommand", () => {
   });
 
   test("setModule only accepts whitelisted module keys", () => {
-    expect(parseCommand({ type: "setModule", module: "ekg", on: false })).toEqual({
+    expect(
+      parseCommand({ type: "setModule", module: "ekg", on: false }),
+    ).toEqual({
       type: "setModule",
       module: "ekg",
       on: false,
     });
-    expect(parseCommand({ type: "setModule", module: "pulsoxi", on: true })).toEqual({
+    expect(
+      parseCommand({ type: "setModule", module: "pulsoxi", on: true }),
+    ).toEqual({
       type: "setModule",
       module: "pulsoxi",
       on: true,
     });
-    expect(parseCommand({ type: "setModule", module: "etco2", on: true })).toBeNull();
+    expect(
+      parseCommand({ type: "setModule", module: "etco2", on: true }),
+    ).toBeNull();
   });
 
   test("spike carries no payload", () => {

@@ -1,7 +1,7 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { act, renderHook } from "@testing-library/react";
-import { useSessionStream } from "./useSessionStream";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { INITIAL_STATE } from "@/lib/session-state";
+import { useSessionStream } from "./useSessionStream";
 
 class MockEventSource {
   static instances: MockEventSource[] = [];
@@ -53,7 +53,12 @@ describe("useSessionStream", () => {
     const { result } = renderHook(() => useSessionStream("123456"));
     act(() => latest().open());
     expect(result.current.status).toBe("open");
-    act(() => latest().emit("state", JSON.stringify({ ...INITIAL_STATE, rhythm: "pvt" })));
+    act(() =>
+      latest().emit(
+        "state",
+        JSON.stringify({ ...INITIAL_STATE, rhythm: "pvt" }),
+      ),
+    );
     expect(result.current.state?.rhythm).toBe("pvt");
   });
 

@@ -16,9 +16,11 @@ npx vitest run src/lib/waveform.test.ts        # single test file
 npx vitest run -t "restarts the sweep clean"   # single test by name
 npm run build        # production build (standalone output)
 npx tsc --noEmit     # typecheck
+npm run lint         # tsc --noEmit + biome check (lint + format check)
+npm run format       # biome check --write (apply lint/format fixes)
 ```
 
-Note: `npm run lint` is **broken** — Next 16 removed `next lint` and there is no `eslint.config.js`. Use `npx tsc --noEmit` to check types. Tests are the quality gate.
+Linting/formatting is [Biome](https://biomejs.dev) (`biome.json`): recommended preset, 2-space indent, import organizing on. `npm run lint` typechecks then runs `biome check`; `npm run format` applies safe fixes. Tests remain the primary quality gate.
 
 Deploy: `bin/deploy-prod` builds the Docker image, pushes it, and restarts the stack on `drk-barmbek.de` over SSH. Runs as a Next standalone server (`output: "standalone"`).
 

@@ -18,13 +18,16 @@ export function parseCommand(raw: unknown): Command | null {
 
   switch (c.type) {
     case "setRhythm":
-      return isRhythmId(c.rhythm) ? { type: "setRhythm", rhythm: c.rhythm } : null;
+      return isRhythmId(c.rhythm)
+        ? { type: "setRhythm", rhythm: c.rhythm }
+        : null;
     case "setDrueckt":
       return typeof c.drueckt === "boolean"
         ? { type: "setDrueckt", drueckt: c.drueckt }
         : null;
     case "setModule":
-      return MODULE_KEYS.includes(c.module as ModuleKey) && typeof c.on === "boolean"
+      return MODULE_KEYS.includes(c.module as ModuleKey) &&
+        typeof c.on === "boolean"
         ? { type: "setModule", module: c.module as ModuleKey, on: c.on }
         : null;
     case "spike":

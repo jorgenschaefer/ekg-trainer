@@ -1,9 +1,11 @@
 import { describe, expect, test } from "vitest";
-import { POST } from "./route";
 import { store } from "@/lib/session-store";
+import { POST } from "./route";
 
 function post(code: string, body: unknown, token?: string) {
-  const headers: Record<string, string> = { "content-type": "application/json" };
+  const headers: Record<string, string> = {
+    "content-type": "application/json",
+  };
   if (token !== undefined) headers.Authorization = `Bearer ${token}`;
   return POST(
     new Request(`http://test/api/session/${code}/control`, {
@@ -18,7 +20,11 @@ function post(code: string, body: unknown, token?: string) {
 describe("POST /api/session/:code/control", () => {
   test("applies a valid command with the admin token", async () => {
     const session = store.createSession();
-    const res = await post(session.code, { type: "setRhythm", rhythm: "pvt" }, session.adminToken);
+    const res = await post(
+      session.code,
+      { type: "setRhythm", rhythm: "pvt" },
+      session.adminToken,
+    );
     expect(res.status).toBe(200);
     expect(store.getSession(session.code)!.state.rhythm).toBe("pvt");
   });
@@ -48,7 +54,11 @@ describe("POST /api/session/:code/control", () => {
 
   test("400 for an invalid command", async () => {
     const session = store.createSession();
-    const res = await post(session.code, { type: "setRhythm", rhythm: "bogus" }, session.adminToken);
+    const res = await post(
+      session.code,
+      { type: "setRhythm", rhythm: "bogus" },
+      session.adminToken,
+    );
     expect(res.status).toBe(400);
   });
 });

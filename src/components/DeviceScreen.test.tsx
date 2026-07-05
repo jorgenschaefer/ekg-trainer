@@ -1,7 +1,7 @@
-import { afterEach, describe, expect, test, vi } from "vitest";
 import { cleanup, render, screen, within } from "@testing-library/react";
-import DeviceScreen from "./DeviceScreen";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import type { SessionState } from "@/lib/session-state";
+import DeviceScreen from "./DeviceScreen";
 
 afterEach(cleanup);
 
@@ -40,30 +40,43 @@ describe("DeviceScreen", () => {
 
   test("HF module off keeps the HF readout present, showing '– –'", () => {
     render(
-      <DeviceScreen state={state({ modules: { ekg: false, pulsoxi: true } })} mode="MONITOR" />,
+      <DeviceScreen
+        state={state({ modules: { ekg: false, pulsoxi: true } })}
+        mode="MONITOR"
+      />,
     );
     expect(within(readout("HF")).getByText("– –")).toBeInTheDocument();
   });
 
   test("pulsoxi off keeps SpO2 and pulse present, both showing '– –'", () => {
     render(
-      <DeviceScreen state={state({ modules: { ekg: true, pulsoxi: false } })} mode="MONITOR" />,
+      <DeviceScreen
+        state={state({ modules: { ekg: true, pulsoxi: false } })}
+        mode="MONITOR"
+      />,
     );
     expect(within(readout("SpO2")).getByText("– –")).toBeInTheDocument();
     expect(within(readout("Puls")).getByText("– –")).toBeInTheDocument();
   });
 
   test("the pleth lane is always present, with or without pulsoxi", () => {
-    const { rerender } = render(<DeviceScreen state={state()} mode="MONITOR" />);
+    const { rerender } = render(
+      <DeviceScreen state={state()} mode="MONITOR" />,
+    );
     expect(screen.getByTestId("pleth-curve")).toBeInTheDocument();
     rerender(
-      <DeviceScreen state={state({ modules: { ekg: true, pulsoxi: false } })} mode="MONITOR" />,
+      <DeviceScreen
+        state={state({ modules: { ekg: true, pulsoxi: false } })}
+        mode="MONITOR"
+      />,
     );
     expect(screen.getByTestId("pleth-curve")).toBeInTheDocument();
   });
 
   test("shows a reconnect pill while reconnecting", () => {
-    const { rerender } = render(<DeviceScreen state={state()} mode="MONITOR" />);
+    const { rerender } = render(
+      <DeviceScreen state={state()} mode="MONITOR" />,
+    );
     expect(screen.queryByText(/Verbinde neu/)).not.toBeInTheDocument();
     rerender(<DeviceScreen state={state()} mode="MONITOR" reconnecting />);
     expect(screen.getByText(/Verbinde neu/)).toBeInTheDocument();
@@ -84,20 +97,36 @@ describe("DeviceScreen", () => {
 
     test("is absent when the device supports neither fullscreen nor wake lock", () => {
       render(
-        <DeviceScreen state={state()} mode="MONITOR" fullscreen={fullscreen({ supported: false })} />,
+        <DeviceScreen
+          state={state()}
+          mode="MONITOR"
+          fullscreen={fullscreen({ supported: false })}
+        />,
       );
       expect(screen.queryByRole("button")).not.toBeInTheDocument();
     });
 
     test("when inactive, offers to enter and is not pressed", () => {
-      render(<DeviceScreen state={state()} mode="MONITOR" fullscreen={fullscreen()} />);
-      const button = screen.getByRole("button", { name: "Vollbild aktivieren" });
+      render(
+        <DeviceScreen
+          state={state()}
+          mode="MONITOR"
+          fullscreen={fullscreen()}
+        />,
+      );
+      const button = screen.getByRole("button", {
+        name: "Vollbild aktivieren",
+      });
       expect(button).toHaveAttribute("aria-pressed", "false");
     });
 
     test("when active, offers to leave and is pressed", () => {
       render(
-        <DeviceScreen state={state()} mode="MONITOR" fullscreen={fullscreen({ active: true })} />,
+        <DeviceScreen
+          state={state()}
+          mode="MONITOR"
+          fullscreen={fullscreen({ active: true })}
+        />,
       );
       const button = screen.getByRole("button", { name: "Vollbild verlassen" });
       expect(button).toHaveAttribute("aria-pressed", "true");
@@ -106,7 +135,11 @@ describe("DeviceScreen", () => {
     test("tapping it toggles the mode", () => {
       const toggle = vi.fn();
       render(
-        <DeviceScreen state={state()} mode="MONITOR" fullscreen={fullscreen({ toggle })} />,
+        <DeviceScreen
+          state={state()}
+          mode="MONITOR"
+          fullscreen={fullscreen({ toggle })}
+        />,
       );
       screen.getByRole("button").click();
       expect(toggle).toHaveBeenCalledOnce();

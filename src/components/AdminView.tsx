@@ -1,17 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { RHYTHMS, type RhythmId } from "@/lib/rhythms";
 import type { Command } from "@/lib/commands";
-import type { SessionState } from "@/lib/session-state";
 import { sendControl } from "@/lib/control-client";
+import { RHYTHMS, type RhythmId } from "@/lib/rhythms";
+import type { SessionState } from "@/lib/session-state";
+import styles from "./AdminView.module.css";
 import DeviceScreen from "./DeviceScreen";
 import EndedScreen from "./EndedScreen";
 import { useSessionStream } from "./useSessionStream";
-import styles from "./AdminView.module.css";
 
 const FAMILIES: { title: string; ids: RhythmId[]; columns?: number }[] = [
-  { title: "Sinus", ids: ["sinus-normo", "sinus-brady", "sinus-tachy"], columns: 3 },
+  {
+    title: "Sinus",
+    ids: ["sinus-normo", "sinus-brady", "sinus-tachy"],
+    columns: 3,
+  },
   { title: "Kammerflimmern", ids: ["vf-fein", "vf-grob"], columns: 2 },
   { title: "Weitere", ids: ["pvt", "pea", "asystolie"], columns: 1 },
 ];
@@ -20,14 +24,22 @@ const FAMILIES: { title: string; ids: RhythmId[]; columns?: number }[] = [
 // server, the server echoes the new state, and the mirror (and the active-rhythm
 // highlight) render from that echo — the same path the monitors take, so the
 // mirror can never show something no monitor received.
-export default function AdminView({ code, token }: { code: string; token: string }) {
+export default function AdminView({
+  code,
+  token,
+}: {
+  code: string;
+  token: string;
+}) {
   const { state, status, spikeNonce } = useSessionStream(code);
   const [error, setError] = useState("");
 
   const send = (command: Command) => {
     setError("");
     sendControl(code, token, command).catch(() =>
-      setError("Steuerung fehlgeschlagen – nicht alle Monitore sind aktualisiert."),
+      setError(
+        "Steuerung fehlgeschlagen – nicht alle Monitore sind aktualisiert.",
+      ),
     );
   };
 
@@ -38,7 +50,8 @@ export default function AdminView({ code, token }: { code: string; token: string
       <header className={styles.topbar}>
         <span className={styles.title}>EKG-Rhythmus-Trainer</span>
         <span className={styles.adminBadge}>Admin</span>
-        <span className={styles.codeChip} aria-label="Sitzungscode">
+        <span className={styles.codeChip}>
+          <span className={styles.srOnly}>Sitzungscode: </span>
           {code}
         </span>
       </header>
@@ -72,7 +85,13 @@ export default function AdminView({ code, token }: { code: string; token: string
   );
 }
 
-function Controls({ state, send }: { state: SessionState; send: (c: Command) => void }) {
+function Controls({
+  state,
+  send,
+}: {
+  state: SessionState;
+  send: (c: Command) => void;
+}) {
   return (
     <>
       <fieldset className={styles.block}>
@@ -82,7 +101,9 @@ function Controls({ state, send }: { state: SessionState; send: (c: Command) => 
             <span className={styles.familyTitle}>{family.title}</span>
             <div
               className={styles.rhythmGrid}
-              style={{ gridTemplateColumns: `repeat(${family.columns ?? 1}, 1fr)` }}
+              style={{
+                gridTemplateColumns: `repeat(${family.columns ?? 1}, 1fr)`,
+              }}
             >
               {family.ids.map((id) => (
                 <button
@@ -109,7 +130,9 @@ function Controls({ state, send }: { state: SessionState; send: (c: Command) => 
           className={`${styles.drueckt} ${state.drueckt ? styles.druecktOn : ""}`}
           onClick={() => send({ type: "setDrueckt", drueckt: !state.drueckt })}
         >
-          {state.drueckt && <span className={styles.runningDot} aria-hidden="true" />}
+          {state.drueckt && (
+            <span className={styles.runningDot} aria-hidden="true" />
+          )}
           Drückt{state.drueckt ? " · läuft" : ""}
         </button>
 
@@ -131,14 +154,20 @@ function Controls({ state, send }: { state: SessionState; send: (c: Command) => 
           label="Patches/EKG angeschlossen"
           swatch="ekg"
           on={state.modules.ekg}
-          onToggle={() => send({ type: "setModule", module: "ekg", on: !state.modules.ekg })}
+          onToggle={() =>
+            send({ type: "setModule", module: "ekg", on: !state.modules.ekg })
+          }
         />
         <ModuleSwitch
           label="Pulsoxi angeschlossen"
           swatch="pulsoxi"
           on={state.modules.pulsoxi}
           onToggle={() =>
-            send({ type: "setModule", module: "pulsoxi", on: !state.modules.pulsoxi })
+            send({
+              type: "setModule",
+              module: "pulsoxi",
+              on: !state.modules.pulsoxi,
+            })
           }
         />
       </fieldset>
@@ -165,9 +194,15 @@ function ModuleSwitch({
       className={styles.module}
       onClick={onToggle}
     >
-      <span className={`${styles.swatch} ${styles[swatch]}`} aria-hidden="true" />
+      <span
+        className={`${styles.swatch} ${styles[swatch]}`}
+        aria-hidden="true"
+      />
       <span className={styles.moduleLabel}>{label}</span>
-      <span className={`${styles.track} ${on ? styles.trackOn : ""}`} aria-hidden="true">
+      <span
+        className={`${styles.track} ${on ? styles.trackOn : ""}`}
+        aria-hidden="true"
+      >
         <span className={styles.knob} />
       </span>
     </button>

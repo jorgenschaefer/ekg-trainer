@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { GET } from "./route";
 import { store } from "@/lib/session-store";
+import { GET } from "./route";
 
 function call(code: string) {
   return GET(new Request(`http://test/api/session/${code}`), {

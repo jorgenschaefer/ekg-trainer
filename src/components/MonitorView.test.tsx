@@ -1,9 +1,9 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { cleanup, render, screen, within } from "@testing-library/react";
 import { createRef } from "react";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { INITIAL_STATE } from "@/lib/session-state";
 import type { SessionStream } from "./useSessionStream";
 import type { Vollbildmodus } from "./useVollbildmodus";
-import { INITIAL_STATE } from "@/lib/session-state";
 
 let stream: SessionStream;
 vi.mock("./useSessionStream", () => ({
@@ -48,7 +48,9 @@ describe("MonitorView", () => {
     stream = { state: INITIAL_STATE, status: "ended", spikeNonce: 0 };
     render(<MonitorView code="123456" />);
     expect(screen.getByText(/Sitzung nicht mehr aktiv/)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Zur Startseite/ })).toHaveAttribute("href", "/");
+    expect(
+      screen.getByRole("link", { name: /Zur Startseite/ }),
+    ).toHaveAttribute("href", "/");
     expect(screen.queryByText("MONITOR")).not.toBeInTheDocument();
   });
 
@@ -56,7 +58,9 @@ describe("MonitorView", () => {
     stream = { state: INITIAL_STATE, status: "open", spikeNonce: 0 };
     fullscreen = { ...fullscreen, supported: true };
     render(<MonitorView code="123456" />);
-    expect(screen.getByRole("button", { name: "Vollbild aktivieren" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Vollbild aktivieren" }),
+    ).toBeInTheDocument();
   });
 
   test("hides the Vollbild toggle when the device supports neither capability", () => {

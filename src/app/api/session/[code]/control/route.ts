@@ -24,9 +24,15 @@ export async function POST(req: Request, ctx: Ctx): Promise<Response> {
   const result = store.applyControl(code, token, command);
   switch (result) {
     case "not-found":
-      return Response.json({ error: "Sitzung nicht gefunden." }, { status: 404 });
+      return Response.json(
+        { error: "Sitzung nicht gefunden." },
+        { status: 404 },
+      );
     case "forbidden":
-      return Response.json({ error: "Keine Steuerungsberechtigung." }, { status: 403 });
+      return Response.json(
+        { error: "Keine Steuerungsberechtigung." },
+        { status: 403 },
+      );
     case "ok":
       return Response.json({ ok: true });
   }

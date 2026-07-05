@@ -1,11 +1,14 @@
 import { describe, expect, test, vi } from "vitest";
-import { GET } from "./route";
 import { store } from "@/lib/session-store";
+import { GET } from "./route";
 
 function open(code: string, signal?: AbortSignal) {
-  return GET(new Request(`http://test/api/session/${code}/stream`, { signal }), {
-    params: Promise.resolve({ code }),
-  });
+  return GET(
+    new Request(`http://test/api/session/${code}/stream`, { signal }),
+    {
+      params: Promise.resolve({ code }),
+    },
+  );
 }
 
 async function readChunk(res: Response): Promise<string> {
@@ -59,7 +62,9 @@ describe("GET /api/session/:code/stream", () => {
       vi.advanceTimersByTime(20_000);
       const ping = await readChunk(res);
       expect(ping).toContain(": ping");
-      expect(store.getSession(session.code)!.lastActivity).toBeGreaterThan(before);
+      expect(store.getSession(session.code)!.lastActivity).toBeGreaterThan(
+        before,
+      );
     } finally {
       vi.useRealTimers();
     }

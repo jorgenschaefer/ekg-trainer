@@ -1,9 +1,9 @@
 import { monitorReadout } from "@/lib/readout";
 import type { SessionState } from "@/lib/session-state";
-import type { Vollbildmodus } from "./useVollbildmodus";
 import Clock from "./Clock";
-import Waveforms from "./Waveforms";
 import styles from "./DeviceScreen.module.css";
+import type { Vollbildmodus } from "./useVollbildmodus";
+import Waveforms from "./Waveforms";
 
 // The slice of the Vollbildmodus the topbar toggle needs — the ref stays with the hook.
 type FullscreenControl = Pick<Vollbildmodus, "supported" | "active" | "toggle">;
@@ -41,9 +41,24 @@ export default function DeviceScreen({
         </div>
 
         <div className={styles.numbers}>
-          <Readout label="HF" unit="/min" className={styles.hf} value={readout.hf} />
-          <Readout label="SpO2" unit="%" className={styles.spo2} value={readout.spo2} />
-          <Readout label="Puls" unit="/min" className={styles.pulse} value={readout.pulse} />
+          <Readout
+            label="HF"
+            unit="/min"
+            className={styles.hf}
+            value={readout.hf}
+          />
+          <Readout
+            label="SpO2"
+            unit="%"
+            className={styles.spo2}
+            value={readout.spo2}
+          />
+          <Readout
+            label="Puls"
+            unit="/min"
+            className={styles.pulse}
+            value={readout.pulse}
+          />
         </div>
       </div>
 
@@ -71,7 +86,13 @@ function FullscreenToggle({ fullscreen }: { fullscreen: FullscreenControl }) {
       aria-label={active ? "Vollbild verlassen" : "Vollbild aktivieren"}
       onClick={toggle}
     >
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        aria-hidden="true"
+      >
         {active ? (
           <path d="M9 3v6H3M21 9h-6V3M3 15h6v6M15 21v-6h6" />
         ) : (
@@ -96,7 +117,12 @@ function Readout({
   className: string;
 }) {
   return (
-    <div className={`${styles.readout} ${className}`} role="group" aria-label={label}>
+    // biome-ignore lint/a11y/useSemanticElements: a readout is a labeled group, not a form fieldset
+    <div
+      className={`${styles.readout} ${className}`}
+      role="group"
+      aria-label={label}
+    >
       <span className={styles.readoutLabel}>
         {label === "SpO2" ? "SpO₂" : label}
       </span>

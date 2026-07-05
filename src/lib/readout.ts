@@ -19,8 +19,7 @@ export function monitorReadout(state: SessionState): MonitorReadout {
   const rhythm = RHYTHMS[state.rhythm];
 
   return {
-    hf:
-      state.modules.ekg && rhythm.hf !== null ? String(rhythm.hf) : NO_SIGNAL,
+    hf: state.modules.ekg && rhythm.hf !== null ? String(rhythm.hf) : NO_SIGNAL,
     spo2:
       state.modules.pulsoxi && rhythm.generatesOutput && rhythm.spo2 !== null
         ? String(rhythm.spo2)

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { formatSse, SSE_KEEPALIVE } from "./sse";
 import { INITIAL_STATE } from "./session-state";
+import { formatSse, SSE_KEEPALIVE } from "./sse";
 
 describe("formatSse", () => {
   test("a state event carries the full state snapshot as JSON", () => {

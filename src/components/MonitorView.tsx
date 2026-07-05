@@ -2,9 +2,9 @@
 
 import DeviceScreen from "./DeviceScreen";
 import EndedScreen from "./EndedScreen";
+import styles from "./MonitorView.module.css";
 import { useSessionStream } from "./useSessionStream";
 import { useVollbildmodus } from "./useVollbildmodus";
-import styles from "./MonitorView.module.css";
 
 // A monitor: joins by code, shows the device screen, and rides out brief
 // disconnects on the last synced state. Only a definitive end shows the terminal

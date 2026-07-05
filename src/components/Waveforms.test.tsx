@@ -1,5 +1,5 @@
-import { afterEach, describe, expect, test, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import { INITIAL_STATE } from "@/lib/session-state";
 
 import Waveforms from "./Waveforms";
@@ -15,26 +15,29 @@ afterEach(() => {
 // step the sweep loop frame by frame and simulate a stall (hidden tab, occluded
 // window, throttling) as a jump in time.
 function stubCanvas() {
-  const contexts = new Map<HTMLCanvasElement, { clearRect: ReturnType<typeof vi.fn> }>();
-  vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(function (
-    this: HTMLCanvasElement,
-  ) {
-    let ctx = contexts.get(this);
-    if (!ctx) {
-      ctx = {
-        clearRect: vi.fn(),
-        beginPath: vi.fn(),
-        moveTo: vi.fn(),
-        lineTo: vi.fn(),
-        stroke: vi.fn(),
-        strokeStyle: "",
-        lineWidth: 0,
-        lineJoin: "",
-      } as never;
-      contexts.set(this, ctx!);
-    }
-    return ctx as never;
-  });
+  const contexts = new Map<
+    HTMLCanvasElement,
+    { clearRect: ReturnType<typeof vi.fn> }
+  >();
+  vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(
+    function (this: HTMLCanvasElement) {
+      let ctx = contexts.get(this);
+      if (!ctx) {
+        ctx = {
+          clearRect: vi.fn(),
+          beginPath: vi.fn(),
+          moveTo: vi.fn(),
+          lineTo: vi.fn(),
+          stroke: vi.fn(),
+          strokeStyle: "",
+          lineWidth: 0,
+          lineJoin: "",
+        } as never;
+        contexts.set(this, ctx!);
+      }
+      return ctx as never;
+    },
+  );
   let nowMs = 0;
   let rafCb: FrameRequestCallback | null = null;
   vi.spyOn(performance, "now").mockImplementation(() => nowMs);
@@ -59,7 +62,8 @@ function fullClears(
   canvas: HTMLCanvasElement,
 ) {
   return (ctx?.clearRect.mock.calls ?? []).filter(
-    ([x, y, w, h]) => x === 0 && y === 0 && w === canvas.width && h === canvas.height,
+    ([x, y, w, h]) =>
+      x === 0 && y === 0 && w === canvas.width && h === canvas.height,
   ).length;
 }
 

@@ -56,7 +56,11 @@ describe("getSession", () => {
 
 describe("sweep (expiry)", () => {
   function storeAt(now: () => number) {
-    return createStore({ now, randomCode: () => "123456", randomToken: () => "t" });
+    return createStore({
+      now,
+      randomCode: () => "123456",
+      randomToken: () => "t",
+    });
   }
 
   test("removes a session idle for more than 60 minutes and ends its streams", () => {
@@ -150,9 +154,9 @@ describe("applyControl", () => {
   });
 
   test("an unknown code is not found", () => {
-    expect(
-      store.applyControl("000000", token, { type: "spike" }),
-    ).toBe("not-found");
+    expect(store.applyControl("000000", token, { type: "spike" })).toBe(
+      "not-found",
+    );
   });
 
   test("touch bumps lastActivity to now (used on SSE connect/heartbeat)", () => {

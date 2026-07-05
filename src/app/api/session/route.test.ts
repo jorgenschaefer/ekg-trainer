@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { POST } from "./route";
 import { store } from "@/lib/session-store";
+import { POST } from "./route";
 
 describe("POST /api/session", () => {
   test("creates a session and returns its code and admin token", async () => {

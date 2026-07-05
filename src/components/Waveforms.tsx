@@ -2,8 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import { RHYTHMS } from "@/lib/rhythms";
-import { ekgFrameSample, plethFrameSample } from "@/lib/waveform";
 import type { SessionState } from "@/lib/session-state";
+import { ekgFrameSample, plethFrameSample } from "@/lib/waveform";
 import styles from "./Waveforms.module.css";
 
 // Seconds of trace across the full canvas width (sweep period).
@@ -131,7 +131,11 @@ export default function Waveforms({
   return (
     <div className={styles.stack}>
       <canvas ref={ekgRef} data-testid="ekg-curve" className={styles.ekg} />
-      <canvas ref={plethRef} data-testid="pleth-curve" className={styles.pleth} />
+      <canvas
+        ref={plethRef}
+        data-testid="pleth-curve"
+        className={styles.pleth}
+      />
     </div>
   );
 }

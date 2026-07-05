@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vitest";
+import { RHYTHMS } from "./rhythms";
 import {
   compressionArtifact,
   ekgAmplitude,
@@ -7,9 +8,13 @@ import {
   plethFrameSample,
   spikeArtifact,
 } from "./waveform";
-import { RHYTHMS } from "./rhythms";
 
-function sample(fn: (t: number) => number, from: number, to: number, step = 0.005) {
+function sample(
+  fn: (t: number) => number,
+  from: number,
+  to: number,
+  step = 0.005,
+) {
   const values: number[] = [];
   for (let t = from; t < to; t += step) values.push(fn(t));
   return values;
@@ -18,7 +23,9 @@ function sample(fn: (t: number) => number, from: number, to: number, step = 0.00
 describe("ekgAmplitude", () => {
   test("asystole is near-flat: only a faint baseline artifact, far below fine VF", () => {
     const r = RHYTHMS.asystolie;
-    const peak = Math.max(...sample((t) => ekgAmplitude(r, t), 0, 6).map(Math.abs));
+    const peak = Math.max(
+      ...sample((t) => ekgAmplitude(r, t), 0, 6).map(Math.abs),
+    );
     // a real monitor never draws a mathematically perfect line — there is faint interference
     expect(peak).toBeGreaterThan(0);
     // but it stays a flat-ish line, clearly below even fine fibrillation
@@ -45,26 +52,36 @@ describe("ekgAmplitude", () => {
     const r = RHYTHMS["vf-grob"];
     const values = sample((t) => ekgAmplitude(r, t), 0, 2);
     expect(new Set(values.map((v) => v.toFixed(3))).size).toBeGreaterThan(50);
-    expect(Math.max(...values.map(Math.abs))).toBeLessThanOrEqual(r.amplitude! + 0.001);
+    expect(Math.max(...values.map(Math.abs))).toBeLessThanOrEqual(
+      r.amplitude! + 0.001,
+    );
   });
 
   test("fibrillation amplitude wanders — it swells and fades, never a steady envelope", () => {
     const r = RHYTHMS["vf-grob"];
     const windowPeaks: number[] = [];
     for (let w = 0; w < 8; w += 0.25) {
-      windowPeaks.push(Math.max(...sample((t) => ekgAmplitude(r, t), w, w + 0.25).map(Math.abs)));
+      windowPeaks.push(
+        Math.max(
+          ...sample((t) => ekgAmplitude(r, t), w, w + 0.25).map(Math.abs),
+        ),
+      );
     }
     // tall stretches reach near full height...
     expect(Math.max(...windowPeaks)).toBeGreaterThan(0.6);
     // ...yet there are clearly quieter stretches — it swells and fades rather than
     // holding a steady band (but the floor stays above zero: never a flat gap)
     expect(Math.min(...windowPeaks)).toBeGreaterThan(0.1);
-    expect(Math.max(...windowPeaks) / Math.min(...windowPeaks)).toBeGreaterThan(1.8);
+    expect(Math.max(...windowPeaks) / Math.min(...windowPeaks)).toBeGreaterThan(
+      1.8,
+    );
   });
 
   test("fine VF is the same chaos at a clearly smaller amplitude than coarse", () => {
     const peak = (id: "vf-fein" | "vf-grob") =>
-      Math.max(...sample((t) => ekgAmplitude(RHYTHMS[id], t), 0, 8).map(Math.abs));
+      Math.max(
+        ...sample((t) => ekgAmplitude(RHYTHMS[id], t), 0, 8).map(Math.abs),
+      );
     expect(peak("vf-fein")).toBeLessThan(peak("vf-grob") * 0.5);
   });
 
@@ -120,7 +137,12 @@ describe("compressionArtifact", () => {
 describe("ekgFrameSample (what the EKG draws each frame)", () => {
   const NO_SPIKE = -1; // spike already finished
 
-  const frame = (over = {}) => ({ connected: true, drueckt: false, secondsSinceSpike: NO_SPIKE, ...over });
+  const frame = (over = {}) => ({
+    connected: true,
+    drueckt: false,
+    secondsSinceSpike: NO_SPIKE,
+    ...over,
+  });
 
   test("without Drückt it shows the current rhythm", () => {
     const t = 0.37;
@@ -128,7 +150,9 @@ describe("ekgFrameSample (what the EKG draws each frame)", () => {
       ekgAmplitude(RHYTHMS["sinus-normo"], t),
     );
     // switching the rhythm is honored frame-to-frame
-    expect(ekgFrameSample(RHYTHMS.pvt, t, frame())).toBe(ekgAmplitude(RHYTHMS.pvt, t));
+    expect(ekgFrameSample(RHYTHMS.pvt, t, frame())).toBe(
+      ekgAmplitude(RHYTHMS.pvt, t),
+    );
   });
 
   test("Drückt overlays the compression artifact and hides the rhythm, whatever it is", () => {
@@ -144,17 +168,27 @@ describe("ekgFrameSample (what the EKG draws each frame)", () => {
 
   test("is flat when the EKG leads are not connected — overriding rhythm, compression and spike", () => {
     const t = 0.37;
-    expect(ekgFrameSample(RHYTHMS["sinus-normo"], t, frame({ connected: false }))).toBe(0);
     expect(
-      ekgFrameSample(RHYTHMS.pvt, t, frame({ connected: false, drueckt: true, secondsSinceSpike: 0 })),
+      ekgFrameSample(RHYTHMS["sinus-normo"], t, frame({ connected: false })),
+    ).toBe(0);
+    expect(
+      ekgFrameSample(
+        RHYTHMS.pvt,
+        t,
+        frame({ connected: false, drueckt: true, secondsSinceSpike: 0 }),
+      ),
     ).toBe(0);
   });
 
   test("a live spike overrides both the rhythm and the compression artifact", () => {
     // even under Drückt, the fresh spike wins
-    expect(ekgFrameSample(RHYTHMS.asystolie, 0.37, frame({ drueckt: true, secondsSinceSpike: 0 }))).toBe(
-      spikeArtifact(0),
-    );
+    expect(
+      ekgFrameSample(
+        RHYTHMS.asystolie,
+        0.37,
+        frame({ drueckt: true, secondsSinceSpike: 0 }),
+      ),
+    ).toBe(spikeArtifact(0));
     // once the spike has passed it falls back to the running curve
     expect(ekgFrameSample(RHYTHMS.asystolie, 0.37, frame())).toBe(
       ekgAmplitude(RHYTHMS.asystolie, 0.37),

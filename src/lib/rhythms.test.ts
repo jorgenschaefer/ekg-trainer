@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { RHYTHM_IDS, RHYTHMS, isRhythmId } from "./rhythms";
+import { isRhythmId, RHYTHM_IDS, RHYTHMS } from "./rhythms";
 
 describe("rhythm catalog", () => {
   test("sinus normo: rate 70, produces output", () => {
