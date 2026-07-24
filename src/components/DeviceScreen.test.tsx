@@ -327,5 +327,21 @@ describe("DeviceScreen", () => {
         "undefined",
       );
     });
+
+    test("timer and therapy stay available alongside the Vollbild toggle", () => {
+      render(
+        <DeviceScreen
+          state={state()}
+          mode="MONITOR"
+          controls={controls()}
+          fullscreen={{ supported: true, active: true, toggle: vi.fn() }}
+        />,
+      );
+      expect(screen.getByRole("button", { name: "Start" })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Laden" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /Vollbild/ }),
+      ).toBeInTheDocument();
+    });
   });
 });

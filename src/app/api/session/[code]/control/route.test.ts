@@ -73,4 +73,10 @@ describe("POST /api/session/:code/control", () => {
     );
     expect(res.status).toBe(400);
   });
+
+  test("400 for the removed spike command", async () => {
+    const session = store.createSession();
+    const res = await post(session.code, { type: "spike" }, session.adminToken);
+    expect(res.status).toBe(400);
+  });
 });

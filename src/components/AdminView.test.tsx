@@ -144,6 +144,14 @@ describe("AdminView", () => {
     ).not.toBeInTheDocument();
   });
 
+  test("no longer offers the Schock-Spike button (defibrillation moved to the device)", () => {
+    stream = { state: state(), status: "open" };
+    render(<AdminView code="123456" token="t" />);
+    expect(
+      screen.queryByRole("button", { name: /Schock/ }),
+    ).not.toBeInTheDocument();
+  });
+
   test("the mirror shows '– –' for a switched-off module, same as the monitors", () => {
     stream = {
       state: state({ modules: { ekg: true, pulsoxi: false } }),

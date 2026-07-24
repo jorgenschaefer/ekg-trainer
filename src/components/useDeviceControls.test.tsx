@@ -160,3 +160,20 @@ describe("useDeviceControls — tones", () => {
     expect(audio.stop).toHaveBeenCalled();
   });
 });
+
+describe("useDeviceControls — locality", () => {
+  test("never touches the network — timer and defi are entirely local", () => {
+    const fetchSpy = vi.fn();
+    vi.stubGlobal("fetch", fetchSpy);
+    try {
+      const { result } = renderHook(() => useDeviceControls(mockAudio()));
+      act(() => result.current.toggleTimer());
+      act(() => result.current.charge());
+      act(() => vi.advanceTimersByTime(5500));
+      act(() => result.current.shock());
+      expect(fetchSpy).not.toHaveBeenCalled();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+});
