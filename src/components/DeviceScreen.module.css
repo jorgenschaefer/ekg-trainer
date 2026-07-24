@@ -317,10 +317,9 @@
   animation: chargeSpin 0.7s linear infinite;
 }
 
-.chargeRemaining {
-  font-family: "Barlow Condensed", system-ui, sans-serif;
-  font-size: 4cqh;
-  line-height: 1;
+.chargeLabel {
+  font-size: 2.4cqh;
+  letter-spacing: 0.04em;
 }
 
 @keyframes chargeSpin {

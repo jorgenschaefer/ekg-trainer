@@ -101,8 +101,8 @@ stattfindet.
 - **US-2 · Als** Teilnehmende:r **möchte ich** den Defi laden, **damit** ich ihn für
   einen Schock vorbereite.
   - given `idle`, when ich „Laden" drücke, then wechselt der Defi nach `charging`,
-    zeigt 5,5 s lang eine Ladeanzeige (Spinner + grob verbleibende Sekunden) und die
-    Schock-Taste ist deaktiviert.
+    zeigt 5,5 s lang eine Ladeanzeige (Spinner mit „Lädt…", ohne Sekunden-Countdown)
+    und die Schock-Taste ist deaktiviert.
   - given `charging`, when die 5,5 s abgelaufen sind, then wechselt der Defi nach
     `armed` und die Schock-Taste wird aktiv.
   - given `charging`, then ist „Laden" nicht erneut auslösbar (durch die Ladeanzeige
@@ -178,7 +178,7 @@ bestehenden Monitor-Tokens (`globals.css`) und den Container-Query-Einheiten des
   (`Kurven | Zahlen | Therapie`); die Vitalwerte bleiben an ihrer Stelle. Als
   abgesetztes Panel (heller Bezel, `border-left`) mit den Zuständen:
   - `idle`: Taste „Laden" (bernstein) + deaktivierte „Schock"-Taste (rot, Herz-Symbol).
-  - `charging`: Ladeanzeige (Spinner + Restsekunden) + weiterhin deaktivierte „Schock".
+  - `charging`: Ladeanzeige (Spinner mit „Lädt…") + weiterhin deaktivierte „Schock".
   - `armed`: aktive „Schock"-Taste (rot, pulsierend, Herz) + „Abbrechen" (Ghost).
   - _Why: „rechts neben den Kurven" entspricht der Therapietasten-Spalte des echten
     corpuls1 und maximiert den Trainingstransfer – Nutzerentscheidung._

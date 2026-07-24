@@ -7,8 +7,6 @@ import { formatElapsed } from "@/lib/timer";
 
 // Charge time of the real corpuls1 (data sheet: ca. 5.5 s).
 const CHARGE_MS = 5500;
-// The charge indicator counts down whole seconds — a rough "verbleibende Sekunden".
-const CHARGE_COUNTDOWN_START = Math.floor(CHARGE_MS / 1000);
 
 // The trainee monitor's local device controls: a resuscitation-time stopwatch and
 // the defibrillator (Laden → Schock/Abbrechen). All state is local to this device —
@@ -16,7 +14,7 @@ const CHARGE_COUNTDOWN_START = Math.floor(CHARGE_MS / 1000);
 export interface DeviceControls {
   timer: { running: boolean; label: string };
   toggleTimer: () => void;
-  defi: { status: DefiStatus; chargeRemaining: number | null };
+  defi: { status: DefiStatus };
   charge: () => void;
   shock: () => void;
   cancel: () => void;
@@ -30,7 +28,6 @@ export function useDeviceControls(audio?: DefiAudio): DeviceControls {
   const [running, setRunning] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [status, setStatus] = useState<DefiStatus>("idle");
-  const [chargeRemaining, setChargeRemaining] = useState<number | null>(null);
   const [spikeNonce, setSpikeNonce] = useState(0);
 
   const audioRef = useRef<DefiAudio | null>(null);
@@ -64,23 +61,13 @@ export function useDeviceControls(audio?: DefiAudio): DeviceControls {
     }
   }, [status, tones]);
 
-  // While charging, tick the rough countdown and arm after the full charge time.
-  // (The initial count is set in charge() so the first painted frame already shows
-  // it — no null flash.)
+  // Arm after the full charge time.
   useEffect(() => {
     if (status !== "charging") return;
-    const countdown = setInterval(
-      () => setChargeRemaining((r) => (r && r > 1 ? r - 1 : r)),
-      1000,
-    );
     const arm = setTimeout(() => {
       setStatus((s) => defiTransition(s, "chargeComplete").status);
-      setChargeRemaining(null);
     }, CHARGE_MS);
-    return () => {
-      clearInterval(countdown);
-      clearTimeout(arm);
-    };
+    return () => clearTimeout(arm);
   }, [status]);
 
   // Start runs from 00:00; Stop halts and resets to 00:00 (two states, no pause).
@@ -96,13 +83,10 @@ export function useDeviceControls(audio?: DefiAudio): DeviceControls {
   };
 
   const charge = () => {
-    const { status: next } = defiTransition(status, "charge");
     // Unlock audio here, in the tap's own call stack (WebKit requirement); the
     // rising tone itself is started by the status effect once we're charging.
     tones.unlock();
-    // Seed the countdown synchronously so the first charging frame already shows it.
-    if (next === "charging") setChargeRemaining(CHARGE_COUNTDOWN_START);
-    setStatus(next);
+    setStatus((s) => defiTransition(s, "charge").status);
   };
   const cancel = () => setStatus((s) => defiTransition(s, "cancel").status);
   // Reads `status` from the render's closure (not a functional update) because we
@@ -117,7 +101,7 @@ export function useDeviceControls(audio?: DefiAudio): DeviceControls {
   return {
     timer: { running, label: formatElapsed(elapsed) },
     toggleTimer,
-    defi: { status, chargeRemaining },
+    defi: { status },
     charge,
     shock,
     cancel,

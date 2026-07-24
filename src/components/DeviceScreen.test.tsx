@@ -27,7 +27,7 @@ function controls(overrides: Partial<DeviceControls> = {}): DeviceControls {
   return {
     timer: { running: false, label: "00:00" },
     toggleTimer: vi.fn(),
-    defi: { status: "idle", chargeRemaining: null },
+    defi: { status: "idle" },
     charge: vi.fn(),
     shock: vi.fn(),
     cancel: vi.fn(),
@@ -228,7 +228,7 @@ describe("DeviceScreen", () => {
           state={state()}
           mode="MONITOR"
           controls={controls({
-            defi: { status: "idle", chargeRemaining: null },
+            defi: { status: "idle" },
           })}
         />,
       );
@@ -239,17 +239,17 @@ describe("DeviceScreen", () => {
       ).not.toBeInTheDocument();
     });
 
-    test("charging shows the remaining seconds and keeps Schock disabled", () => {
+    test("charging shows a loading indicator and keeps Schock disabled", () => {
       render(
         <DeviceScreen
           state={state()}
           mode="MONITOR"
           controls={controls({
-            defi: { status: "charging", chargeRemaining: 3 },
+            defi: { status: "charging" },
           })}
         />,
       );
-      expect(screen.getByText("3")).toBeInTheDocument();
+      expect(screen.getByText(/Lädt/)).toBeInTheDocument();
       expect(screen.getByRole("button", { name: /Schock/ })).toBeDisabled();
       expect(
         screen.queryByRole("button", { name: "Laden" }),
@@ -262,7 +262,7 @@ describe("DeviceScreen", () => {
           state={state()}
           mode="MONITOR"
           controls={controls({
-            defi: { status: "armed", chargeRemaining: null },
+            defi: { status: "armed" },
           })}
         />,
       );
@@ -291,7 +291,7 @@ describe("DeviceScreen", () => {
           state={state()}
           mode="MONITOR"
           controls={controls({
-            defi: { status: "armed", chargeRemaining: null },
+            defi: { status: "armed" },
             shock,
             cancel,
           })}

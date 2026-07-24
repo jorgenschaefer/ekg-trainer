@@ -47,23 +47,20 @@ describe("useDeviceControls — defibrillator", () => {
     return result;
   }
 
-  test("starts idle with no charge countdown and no spike yet", () => {
+  test("starts idle with no spike yet", () => {
     const { result } = renderHook(() => useDeviceControls());
     expect(result.current.defi.status).toBe("idle");
-    expect(result.current.defi.chargeRemaining).toBeNull();
     expect(result.current.spikeNonce).toBe(0);
   });
 
-  test("charge runs 5.5s with a rough countdown, then arms", () => {
+  test("charge runs for 5.5s, then arms", () => {
     const { result } = renderHook(() => useDeviceControls());
     act(() => result.current.charge());
     expect(result.current.defi.status).toBe("charging");
-    expect(result.current.defi.chargeRemaining).toBe(5);
-    act(() => vi.advanceTimersByTime(2000));
-    expect(result.current.defi.chargeRemaining).toBe(3);
-    act(() => vi.advanceTimersByTime(3500));
+    act(() => vi.advanceTimersByTime(5499));
+    expect(result.current.defi.status).toBe("charging");
+    act(() => vi.advanceTimersByTime(1));
     expect(result.current.defi.status).toBe("armed");
-    expect(result.current.defi.chargeRemaining).toBeNull();
   });
 
   test("shock from armed fires the spike and returns to idle", () => {

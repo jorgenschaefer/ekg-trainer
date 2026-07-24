@@ -116,13 +116,9 @@ function TherapyColumn({ controls }: { controls: DeviceControls }) {
         </button>
       )}
       {defi.status === "charging" && (
-        <div
-          className={styles.charging}
-          role="status"
-          aria-label={`Lädt, noch ${defi.chargeRemaining} Sekunden`}
-        >
+        <div className={styles.charging} role="status">
           <span className={styles.chargeSpinner} aria-hidden="true" />
-          <span className={styles.chargeRemaining}>{defi.chargeRemaining}</span>
+          <span className={styles.chargeLabel}>Lädt…</span>
         </div>
       )}
 
