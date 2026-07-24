@@ -37,9 +37,16 @@ export function useDeviceControls(audio?: DefiAudio): DeviceControls {
   if (!audioRef.current) audioRef.current = audio ?? createDefiAudio();
   const tones = audioRef.current;
 
+  // Wall-clock anchor for the stopwatch: elapsed is derived from it, not counted
+  // per tick, so a throttled/backgrounded tab can't make the resuscitation time
+  // drift (skipped interval fires would otherwise under-count).
+  const startedAtRef = useRef(0);
+
   useEffect(() => {
     if (!running) return;
-    const id = setInterval(() => setElapsed((e) => e + 1), 1000);
+    const tick = () =>
+      setElapsed(Math.floor((Date.now() - startedAtRef.current) / 1000));
+    const id = setInterval(tick, 1000);
     return () => clearInterval(id);
   }, [running]);
 
@@ -58,9 +65,10 @@ export function useDeviceControls(audio?: DefiAudio): DeviceControls {
   }, [status, tones]);
 
   // While charging, tick the rough countdown and arm after the full charge time.
+  // (The initial count is set in charge() so the first painted frame already shows
+  // it — no null flash.)
   useEffect(() => {
     if (status !== "charging") return;
-    setChargeRemaining(CHARGE_COUNTDOWN_START);
     const countdown = setInterval(
       () => setChargeRemaining((r) => (r && r > 1 ? r - 1 : r)),
       1000,
@@ -81,15 +89,20 @@ export function useDeviceControls(audio?: DefiAudio): DeviceControls {
       setRunning(false);
       setElapsed(0);
     } else {
+      startedAtRef.current = Date.now();
+      setElapsed(0);
       setRunning(true);
     }
   };
 
   const charge = () => {
+    const { status: next } = defiTransition(status, "charge");
     // Unlock audio here, in the tap's own call stack (WebKit requirement); the
     // rising tone itself is started by the status effect once we're charging.
     tones.unlock();
-    setStatus((s) => defiTransition(s, "charge").status);
+    // Seed the countdown synchronously so the first charging frame already shows it.
+    if (next === "charging") setChargeRemaining(CHARGE_COUNTDOWN_START);
+    setStatus(next);
   };
   const cancel = () => setStatus((s) => defiTransition(s, "cancel").status);
   // Reads `status` from the render's closure (not a functional update) because we
