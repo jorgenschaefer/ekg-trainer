@@ -2,6 +2,7 @@ import { monitorReadout } from "@/lib/readout";
 import type { SessionState } from "@/lib/session-state";
 import Clock from "./Clock";
 import styles from "./DeviceScreen.module.css";
+import type { DeviceControls } from "./useDeviceControls";
 import type { Vollbildmodus } from "./useVollbildmodus";
 import Waveforms from "./Waveforms";
 
@@ -16,11 +17,13 @@ export default function DeviceScreen({
   mode,
   reconnecting,
   fullscreen,
+  controls,
 }: {
   state: SessionState;
   mode: "MONITOR" | "ADMIN";
   reconnecting?: boolean;
   fullscreen?: FullscreenControl;
+  controls?: DeviceControls;
 }) {
   const readout = monitorReadout(state);
 
@@ -29,6 +32,7 @@ export default function DeviceScreen({
       <div className={styles.topbar}>
         <span className={styles.mode}>{mode}</span>
         <span className={styles.lead}>II</span>
+        {controls && <TimerControl controls={controls} />}
         <Clock />
         {fullscreen?.supported && <FullscreenToggle fullscreen={fullscreen} />}
       </div>
@@ -66,6 +70,28 @@ export default function DeviceScreen({
           Verbinde neu…
         </div>
       )}
+    </div>
+  );
+}
+
+// The resuscitation-time stopwatch in the status bar (like the corpuls1 event
+// timer). One button toggles Start/Stop; Stop resets the display to 00:00.
+function TimerControl({ controls }: { controls: DeviceControls }) {
+  const { timer, toggleTimer } = controls;
+  return (
+    <div className={styles.timer}>
+      <button
+        type="button"
+        className={styles.timerButton}
+        onClick={toggleTimer}
+      >
+        {timer.running ? "Stop" : "Start"}
+      </button>
+      <span
+        className={`${styles.timerValue} ${timer.running ? styles.timerRunning : ""}`}
+      >
+        {timer.label}
+      </span>
     </div>
   );
 }

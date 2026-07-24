@@ -66,7 +66,15 @@ describe("MonitorView", () => {
   test("hides the Vollbild toggle when the device supports neither capability", () => {
     stream = { state: INITIAL_STATE, status: "open" };
     render(<MonitorView code="123456" />);
-    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /Vollbild/ }),
+    ).not.toBeInTheDocument();
+  });
+
+  test("shows the local device controls (timer Start button)", () => {
+    stream = { state: INITIAL_STATE, status: "open" };
+    render(<MonitorView code="123456" />);
+    expect(screen.getByRole("button", { name: "Start" })).toBeInTheDocument();
   });
 
   test("attaches the fullscreen target ref to its container", () => {

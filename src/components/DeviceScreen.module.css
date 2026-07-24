@@ -38,9 +38,52 @@
 
 .lead {
   color: #6b6e68;
-  /* Push the clock + Vollbild toggle into a right-aligned group; the small topbar
-     gap keeps them together at the far edge. */
+  /* Push the timer + clock + Vollbild toggle into a right-aligned group; the small
+     topbar gap keeps them together at the far edge. */
   margin-right: auto;
+}
+
+/* Resuscitation-time stopwatch in the status bar. Sized in cqh so it scales with
+   the device screen, whether large (monitor) or small. */
+.timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 1cqw;
+}
+
+.timerButton {
+  font: inherit;
+  font-weight: 700;
+  font-size: 2.2cqh;
+  letter-spacing: 0.04em;
+  padding: 0.8cqh 1.6cqw;
+  border: none;
+  border-radius: 4px;
+  background: #1a1c1a;
+  color: var(--monitor-bg);
+  cursor: pointer;
+  line-height: 1;
+}
+
+.timerButton:hover {
+  background: #000;
+}
+
+.timerButton:focus-visible {
+  outline: 2px solid #1a1c1a;
+  outline-offset: 2px;
+}
+
+.timerValue {
+  font-family: "Barlow Condensed", system-ui, sans-serif;
+  font-size: 4cqh;
+  font-weight: 600;
+  line-height: 1;
+  min-width: 8cqw;
+}
+
+.timerRunning {
+  color: var(--ekg-green);
 }
 
 /* Icon-only Vollbild toggle: loud dark CTA when inactive (echoes the MONITOR badge),

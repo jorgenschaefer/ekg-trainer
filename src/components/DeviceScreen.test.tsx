@@ -2,6 +2,7 @@ import { cleanup, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import type { SessionState } from "@/lib/session-state";
 import DeviceScreen from "./DeviceScreen";
+import type { DeviceControls } from "./useDeviceControls";
 
 afterEach(cleanup);
 
@@ -10,6 +11,14 @@ function state(overrides: Partial<SessionState> = {}): SessionState {
     rhythm: "sinus-normo",
     drueckt: false,
     modules: { ekg: true, pulsoxi: true },
+    ...overrides,
+  };
+}
+
+function controls(overrides: Partial<DeviceControls> = {}): DeviceControls {
+  return {
+    timer: { running: false, label: "00:00" },
+    toggleTimer: vi.fn(),
     ...overrides,
   };
 }
@@ -143,6 +152,59 @@ describe("DeviceScreen", () => {
       );
       screen.getByRole("button").click();
       expect(toggle).toHaveBeenCalledOnce();
+    });
+  });
+
+  describe("timer", () => {
+    function topbar() {
+      // The topbar is the element holding the mode badge, clock and timer.
+      return screen.getByText("MONITOR").parentElement as HTMLElement;
+    }
+
+    test("shows a Start button and 00:00 in the topbar when stopped", () => {
+      render(
+        <DeviceScreen state={state()} mode="MONITOR" controls={controls()} />,
+      );
+      const bar = topbar();
+      expect(
+        within(bar).getByRole("button", { name: "Start" }),
+      ).toBeInTheDocument();
+      expect(within(bar).getByText("00:00")).toBeInTheDocument();
+    });
+
+    test("shows a Stop button and the running time when running", () => {
+      render(
+        <DeviceScreen
+          state={state()}
+          mode="MONITOR"
+          controls={controls({ timer: { running: true, label: "01:47" } })}
+        />,
+      );
+      const bar = topbar();
+      expect(
+        within(bar).getByRole("button", { name: "Stop" }),
+      ).toBeInTheDocument();
+      expect(within(bar).getByText("01:47")).toBeInTheDocument();
+    });
+
+    test("tapping Start/Stop calls toggleTimer", () => {
+      const toggleTimer = vi.fn();
+      render(
+        <DeviceScreen
+          state={state()}
+          mode="MONITOR"
+          controls={controls({ toggleTimer })}
+        />,
+      );
+      screen.getByRole("button", { name: "Start" }).click();
+      expect(toggleTimer).toHaveBeenCalledOnce();
+    });
+
+    test("is absent without a controls prop (e.g. admin mirror)", () => {
+      render(<DeviceScreen state={state()} mode="ADMIN" />);
+      expect(
+        screen.queryByRole("button", { name: /Start|Stop/ }),
+      ).not.toBeInTheDocument();
     });
   });
 });

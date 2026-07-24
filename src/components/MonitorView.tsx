@@ -3,6 +3,7 @@
 import DeviceScreen from "./DeviceScreen";
 import EndedScreen from "./EndedScreen";
 import styles from "./MonitorView.module.css";
+import { useDeviceControls } from "./useDeviceControls";
 import { useSessionStream } from "./useSessionStream";
 import { useVollbildmodus } from "./useVollbildmodus";
 
@@ -12,6 +13,7 @@ import { useVollbildmodus } from "./useVollbildmodus";
 export default function MonitorView({ code }: { code: string }) {
   const { state, status } = useSessionStream(code);
   const fullscreen = useVollbildmodus();
+  const controls = useDeviceControls();
 
   if (status === "ended") return <EndedScreen />;
 
@@ -24,6 +26,7 @@ export default function MonitorView({ code }: { code: string }) {
             mode="MONITOR"
             reconnecting={status === "reconnecting"}
             fullscreen={fullscreen}
+            controls={controls}
           />
         ) : (
           <p className={styles.connecting}>Verbinde…</p>
