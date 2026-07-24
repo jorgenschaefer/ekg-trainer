@@ -4,7 +4,6 @@ import { INITIAL_STATE, type SessionState } from "./session-state";
 // What a subscribed client (monitor or admin) receives over its stream.
 export type SessionEvent =
   | { type: "state"; state: SessionState }
-  | { type: "spike" }
   | { type: "ended" };
 
 export type Subscriber = (event: SessionEvent) => void;
@@ -102,14 +101,9 @@ export function createStore(deps: StoreDeps): SessionStore {
       }
 
       session.lastActivity = deps.now();
-      // The spike is a fire-and-forget event, not state; everything else is a
-      // full state snapshot (the contract object is tiny — no deltas).
-      broadcast(
-        session,
-        command.type === "spike"
-          ? { type: "spike" }
-          : { type: "state", state: session.state },
-      );
+      // Every command broadcasts a full state snapshot — the contract object is
+      // tiny, so there are no deltas.
+      broadcast(session, { type: "state", state: session.state });
       return "ok";
     },
   };

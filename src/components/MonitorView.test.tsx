@@ -30,7 +30,7 @@ beforeEach(() => {
 
 describe("MonitorView", () => {
   test("renders the device screen with the synced values", () => {
-    stream = { state: INITIAL_STATE, status: "open", spikeNonce: 0 };
+    stream = { state: INITIAL_STATE, status: "open" };
     render(<MonitorView code="123456" />);
     expect(screen.getByText("MONITOR")).toBeInTheDocument();
     const hf = screen.getByRole("group", { name: "HF" });
@@ -38,14 +38,14 @@ describe("MonitorView", () => {
   });
 
   test("shows the reconnect pill while reconnecting but keeps the screen", () => {
-    stream = { state: INITIAL_STATE, status: "reconnecting", spikeNonce: 0 };
+    stream = { state: INITIAL_STATE, status: "reconnecting" };
     render(<MonitorView code="123456" />);
     expect(screen.getByText("MONITOR")).toBeInTheDocument();
     expect(screen.getByText(/Verbinde neu/)).toBeInTheDocument();
   });
 
   test("shows the terminal screen when the session has ended", () => {
-    stream = { state: INITIAL_STATE, status: "ended", spikeNonce: 0 };
+    stream = { state: INITIAL_STATE, status: "ended" };
     render(<MonitorView code="123456" />);
     expect(screen.getByText(/Sitzung nicht mehr aktiv/)).toBeInTheDocument();
     expect(
@@ -55,7 +55,7 @@ describe("MonitorView", () => {
   });
 
   test("offers the Vollbild toggle when the device supports it", () => {
-    stream = { state: INITIAL_STATE, status: "open", spikeNonce: 0 };
+    stream = { state: INITIAL_STATE, status: "open" };
     fullscreen = { ...fullscreen, supported: true };
     render(<MonitorView code="123456" />);
     expect(
@@ -64,13 +64,13 @@ describe("MonitorView", () => {
   });
 
   test("hides the Vollbild toggle when the device supports neither capability", () => {
-    stream = { state: INITIAL_STATE, status: "open", spikeNonce: 0 };
+    stream = { state: INITIAL_STATE, status: "open" };
     render(<MonitorView code="123456" />);
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
 
   test("attaches the fullscreen target ref to its container", () => {
-    stream = { state: INITIAL_STATE, status: "open", spikeNonce: 0 };
+    stream = { state: INITIAL_STATE, status: "open" };
     fullscreen = { ...fullscreen, supported: true };
     render(<MonitorView code="123456" />);
     expect(fullscreen.ref.current).toBeInstanceOf(HTMLElement);

@@ -41,11 +41,8 @@ describe("parseCommand", () => {
     ).toBeNull();
   });
 
-  test("spike carries no payload", () => {
-    expect(parseCommand({ type: "spike" })).toEqual({ type: "spike" });
-  });
-
   test("rejects unknown command types and non-objects", () => {
+    expect(parseCommand({ type: "spike" })).toBeNull();
     expect(parseCommand({ type: "explode" })).toBeNull();
     expect(parseCommand(null)).toBeNull();
     expect(parseCommand("setDrueckt")).toBeNull();

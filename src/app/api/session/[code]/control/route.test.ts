@@ -38,17 +38,29 @@ describe("POST /api/session/:code/control", () => {
 
   test("403 with a wrong token", async () => {
     const session = store.createSession();
-    const res = await post(session.code, { type: "spike" }, "wrong-token");
+    const res = await post(
+      session.code,
+      { type: "setDrueckt", drueckt: true },
+      "wrong-token",
+    );
     expect(res.status).toBe(403);
   });
 
   test("404 for an unknown session", async () => {
-    const res = await post("0000", { type: "spike" }, "any");
+    const res = await post(
+      "0000",
+      { type: "setDrueckt", drueckt: true },
+      "any",
+    );
     expect(res.status).toBe(404);
   });
 
   test("400 for a malformed code", async () => {
-    const res = await post("12ab", { type: "spike" }, "any");
+    const res = await post(
+      "12ab",
+      { type: "setDrueckt", drueckt: true },
+      "any",
+    );
     expect(res.status).toBe(400);
   });
 

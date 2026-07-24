@@ -31,7 +31,7 @@ export default function AdminView({
   code: string;
   token: string;
 }) {
-  const { state, status, spikeNonce } = useSessionStream(code);
+  const { state, status } = useSessionStream(code);
   const [error, setError] = useState("");
 
   const send = (command: Command) => {
@@ -63,7 +63,6 @@ export default function AdminView({
               state={state}
               mode="ADMIN"
               reconnecting={status === "reconnecting"}
-              spikeNonce={spikeNonce}
             />
           ) : (
             <p className={styles.connecting}>Verbinde…</p>
@@ -134,17 +133,6 @@ function Controls({
             <span className={styles.runningDot} aria-hidden="true" />
           )}
           Drückt{state.drueckt ? " · läuft" : ""}
-        </button>
-
-        <button
-          type="button"
-          className={styles.spike}
-          onClick={() => send({ type: "spike" })}
-        >
-          Schock-Spike
-          <span className={styles.spikeHint}>
-            einmaliger Defi-Ausschlag · ändert den Rhythmus nicht
-          </span>
         </button>
       </fieldset>
 

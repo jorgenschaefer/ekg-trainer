@@ -70,13 +70,6 @@ describe("useSessionStream", () => {
     expect(es.closed).toBe(true);
   });
 
-  test("a spike event bumps the spike nonce", () => {
-    const { result } = renderHook(() => useSessionStream("123456"));
-    const before = result.current.spikeNonce;
-    act(() => latest().emit("spike"));
-    expect(result.current.spikeNonce).toBe(before + 1);
-  });
-
   test("a disconnect shows reconnecting only after a ~1s debounce, and clears on reopen", () => {
     vi.useFakeTimers();
     try {

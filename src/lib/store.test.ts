@@ -136,13 +136,6 @@ describe("applyControl", () => {
     expect(a).toEqual(b);
   });
 
-  test("spike broadcasts a spike event without changing state", () => {
-    const before = structuredClone(store.getSession("123456")!.state);
-    store.applyControl("123456", token, { type: "spike" });
-    expect(events).toEqual([{ type: "spike" }]);
-    expect(store.getSession("123456")!.state).toEqual(before);
-  });
-
   test("a wrong token is forbidden and neither mutates nor broadcasts", () => {
     const result = store.applyControl("123456", "wrong", {
       type: "setDrueckt",
@@ -154,9 +147,12 @@ describe("applyControl", () => {
   });
 
   test("an unknown code is not found", () => {
-    expect(store.applyControl("000000", token, { type: "spike" })).toBe(
-      "not-found",
-    );
+    expect(
+      store.applyControl("000000", token, {
+        type: "setDrueckt",
+        drueckt: true,
+      }),
+    ).toBe("not-found");
   });
 
   test("touch bumps lastActivity to now (used on SSE connect/heartbeat)", () => {
@@ -178,15 +174,20 @@ describe("applyControl", () => {
     });
     ticking.createSession();
     expect(ticking.getSession("123456")!.lastActivity).toBe(1000);
-    ticking.applyControl("123456", "secret", { type: "spike" });
+    ticking.applyControl("123456", "secret", {
+      type: "setDrueckt",
+      drueckt: true,
+    });
     expect(ticking.getSession("123456")!.lastActivity).toBe(5000);
   });
 
   test("unsubscribe stops further events", () => {
     const unsub = store.subscribe("123456", (e) => events.push(e));
     unsub();
-    store.applyControl("123456", token, { type: "spike" });
+    store.applyControl("123456", token, { type: "setDrueckt", drueckt: true });
     // Only the first subscriber (from beforeEach) still receives the event.
-    expect(events).toEqual([{ type: "spike" }]);
+    expect(events).toEqual([
+      { type: "state", state: store.getSession("123456")!.state },
+    ]);
   });
 });

@@ -5,8 +5,7 @@ import { isRhythmId, type RhythmId } from "./rhythms";
 export type Command =
   | { type: "setRhythm"; rhythm: RhythmId }
   | { type: "setDrueckt"; drueckt: boolean }
-  | { type: "setModule"; module: ModuleKey; on: boolean }
-  | { type: "spike" };
+  | { type: "setModule"; module: ModuleKey; on: boolean };
 
 export type ModuleKey = "ekg" | "pulsoxi";
 
@@ -30,8 +29,6 @@ export function parseCommand(raw: unknown): Command | null {
         typeof c.on === "boolean"
         ? { type: "setModule", module: c.module as ModuleKey, on: c.on }
         : null;
-    case "spike":
-      return { type: "spike" };
     default:
       return null;
   }

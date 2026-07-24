@@ -15,13 +15,11 @@ export default function DeviceScreen({
   state,
   mode,
   reconnecting,
-  spikeNonce,
   fullscreen,
 }: {
   state: SessionState;
   mode: "MONITOR" | "ADMIN";
   reconnecting?: boolean;
-  spikeNonce?: number;
   fullscreen?: FullscreenControl;
 }) {
   const readout = monitorReadout(state);
@@ -37,7 +35,7 @@ export default function DeviceScreen({
 
       <div className={styles.body}>
         <div className={styles.waves}>
-          <Waveforms state={state} spikeNonce={spikeNonce} />
+          <Waveforms state={state} />
         </div>
 
         <div className={styles.numbers}>

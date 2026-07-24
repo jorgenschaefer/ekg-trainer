@@ -10,7 +10,7 @@ import { useVollbildmodus } from "./useVollbildmodus";
 // disconnects on the last synced state. Only a definitive end shows the terminal
 // screen — a transient drop never does (that would read as asystole).
 export default function MonitorView({ code }: { code: string }) {
-  const { state, status, spikeNonce } = useSessionStream(code);
+  const { state, status } = useSessionStream(code);
   const fullscreen = useVollbildmodus();
 
   if (status === "ended") return <EndedScreen />;
@@ -23,7 +23,6 @@ export default function MonitorView({ code }: { code: string }) {
             state={state}
             mode="MONITOR"
             reconnecting={status === "reconnecting"}
-            spikeNonce={spikeNonce}
             fullscreen={fullscreen}
           />
         ) : (

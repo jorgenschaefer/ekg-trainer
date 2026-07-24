@@ -151,7 +151,6 @@
 
 .rhythmButton:focus-visible,
 .drueckt:focus-visible,
-.spike:focus-visible,
 .module:focus-visible {
   outline: 2px solid var(--admin-blue);
   outline-offset: 2px;
@@ -192,28 +191,6 @@
   50% {
     opacity: 0.25;
   }
-}
-
-.spike {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  width: 100%;
-  margin-top: 12px;
-  font: inherit;
-  font-weight: 700;
-  padding: 12px;
-  border: 2px solid var(--error-red);
-  border-radius: 10px;
-  background: #fff;
-  color: var(--error-red);
-  cursor: pointer;
-}
-
-.spikeHint {
-  font-size: 0.72rem;
-  font-weight: 500;
-  color: #6b6e68;
 }
 
 .module {

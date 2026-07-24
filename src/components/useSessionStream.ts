@@ -8,7 +8,6 @@ export type ConnStatus = "connecting" | "open" | "reconnecting" | "ended";
 export interface SessionStream {
   state: SessionState | null;
   status: ConnStatus;
-  spikeNonce: number;
 }
 
 // Native EventSource auto-reconnects, so a brief blip only flashes the pill after a
@@ -20,7 +19,6 @@ const RECONNECT_DEBOUNCE_MS = 1000;
 export function useSessionStream(code: string): SessionStream {
   const [state, setState] = useState<SessionState | null>(null);
   const [status, setStatus] = useState<ConnStatus>("connecting");
-  const [spikeNonce, setSpikeNonce] = useState(0);
 
   useEffect(() => {
     const es = new EventSource(`/api/session/${code}/stream`);
@@ -39,7 +37,6 @@ export function useSessionStream(code: string): SessionStream {
     es.addEventListener("state", (e) =>
       setState(JSON.parse((e as MessageEvent).data) as SessionState),
     );
-    es.addEventListener("spike", () => setSpikeNonce((n) => n + 1));
     es.addEventListener("ended", () => {
       ended = true;
       clearReconnect();
@@ -60,5 +57,5 @@ export function useSessionStream(code: string): SessionStream {
     };
   }, [code]);
 
-  return { state, status, spikeNonce };
+  return { state, status };
 }

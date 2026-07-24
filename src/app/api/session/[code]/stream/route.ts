@@ -10,8 +10,8 @@ type Ctx = { params: Promise<{ code: string }> };
 const KEEPALIVE_MS = 20_000;
 
 // SSE stream for monitors and admins alike. First write is a full snapshot; every
-// later change is another full snapshot, plus spike and terminal ended events. An
-// active connection keeps the session alive (touch on connect and on each heartbeat).
+// later change is another full snapshot, plus the terminal ended event. An active
+// connection keeps the session alive (touch on connect and on each heartbeat).
 export async function GET(req: Request, ctx: Ctx): Promise<Response> {
   const { code } = await ctx.params;
   if (!isValidCode(code)) {

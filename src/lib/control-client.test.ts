@@ -28,7 +28,7 @@ describe("sendControl", () => {
       vi.fn(() => Promise.resolve(new Response("{}", { status: 403 }))),
     );
     await expect(
-      sendControl("123456", "wrong", { type: "spike" }),
+      sendControl("123456", "wrong", { type: "setDrueckt", drueckt: true }),
     ).rejects.toThrow();
   });
 });

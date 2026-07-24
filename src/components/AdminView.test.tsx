@@ -35,14 +35,14 @@ function lastBody() {
 
 describe("AdminView", () => {
   test("shows the admin mirror and the code chip", () => {
-    stream = { state: state(), status: "open", spikeNonce: 0 };
+    stream = { state: state(), status: "open" };
     render(<AdminView code="123456" token="t" />);
     expect(screen.getByText("ADMIN")).toBeInTheDocument();
     expect(screen.getByText("123456")).toBeInTheDocument();
   });
 
   test("marks the synced rhythm as the active (pressed) button", () => {
-    stream = { state: state({ rhythm: "pvt" }), status: "open", spikeNonce: 0 };
+    stream = { state: state({ rhythm: "pvt" }), status: "open" };
     render(<AdminView code="123456" token="t" />);
     expect(
       screen.getByRole("button", { name: "pulslose VT", pressed: true }),
@@ -56,7 +56,6 @@ describe("AdminView", () => {
     stream = {
       state: state({ rhythm: "sinus-normo" }),
       status: "open",
-      spikeNonce: 0,
     };
     render(<AdminView code="123456" token="t" />);
     await userEvent.click(screen.getByRole("button", { name: "pulslose VT" }));
@@ -74,7 +73,6 @@ describe("AdminView", () => {
     stream = {
       state: state({ drueckt: false }),
       status: "open",
-      spikeNonce: 0,
     };
     render(<AdminView code="123456" token="t" />);
     const sw = screen.getByRole("switch", { name: /Drückt/ });
@@ -83,18 +81,10 @@ describe("AdminView", () => {
     expect(lastBody()).toEqual({ type: "setDrueckt", drueckt: true });
   });
 
-  test("the Schock-Spike button posts a spike event", async () => {
-    stream = { state: state(), status: "open", spikeNonce: 0 };
-    render(<AdminView code="123456" token="t" />);
-    await userEvent.click(screen.getByRole("button", { name: /Schock-Spike/ }));
-    expect(lastBody()).toEqual({ type: "spike" });
-  });
-
   test("module switches reflect state and post setModule", async () => {
     stream = {
       state: state({ modules: { ekg: true, pulsoxi: true } }),
       status: "open",
-      spikeNonce: 0,
     };
     render(<AdminView code="123456" token="t" />);
     const pulsoxi = screen.getByRole("switch", {
@@ -113,7 +103,6 @@ describe("AdminView", () => {
     stream = {
       state: state({ modules: { ekg: true, pulsoxi: true } }),
       status: "open",
-      spikeNonce: 0,
     };
     render(<AdminView code="123456" token="t" />);
     const ekg = screen.getByRole("switch", {
@@ -128,7 +117,7 @@ describe("AdminView", () => {
     fetchMock.mockImplementation(() =>
       Promise.resolve(new Response("{}", { status: 403 })),
     );
-    stream = { state: state(), status: "open", spikeNonce: 0 };
+    stream = { state: state(), status: "open" };
     render(<AdminView code="123456" token="t" />);
     await userEvent.click(screen.getByRole("button", { name: "pulslose VT" }));
     expect(await screen.findByRole("alert")).toHaveTextContent(
@@ -137,7 +126,7 @@ describe("AdminView", () => {
   });
 
   test("the admin mirror never offers the Vollbild toggle", () => {
-    stream = { state: state(), status: "open", spikeNonce: 0 };
+    stream = { state: state(), status: "open" };
     render(<AdminView code="123456" token="t" />);
     expect(
       screen.queryByRole("button", { name: /Vollbild/ }),
@@ -148,7 +137,6 @@ describe("AdminView", () => {
     stream = {
       state: state({ modules: { ekg: true, pulsoxi: false } }),
       status: "open",
-      spikeNonce: 0,
     };
     render(<AdminView code="123456" token="t" />);
     const spo2 = screen.getByRole("group", { name: "SpO2" });

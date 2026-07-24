@@ -9,8 +9,7 @@ describe("formatSse", () => {
     );
   });
 
-  test("spike and ended carry a non-empty data line so EventSource dispatches them", () => {
-    expect(formatSse({ type: "spike" })).toBe("event: spike\ndata: {}\n\n");
+  test("ended carries a non-empty data line so EventSource dispatches it", () => {
     expect(formatSse({ type: "ended" })).toBe("event: ended\ndata: {}\n\n");
   });
 
