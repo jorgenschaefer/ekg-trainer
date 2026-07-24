@@ -1,9 +1,14 @@
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import type { DefiAudio } from "@/lib/defi-audio";
 import { useDeviceControls } from "./useDeviceControls";
 
 beforeEach(() => vi.useFakeTimers());
 afterEach(() => vi.useRealTimers());
+
+function mockAudio(): DefiAudio {
+  return { unlock: vi.fn(), charge: vi.fn(), ready: vi.fn(), stop: vi.fn() };
+}
 
 describe("useDeviceControls — timer", () => {
   test("starts stopped at 00:00", () => {
@@ -94,5 +99,64 @@ describe("useDeviceControls — defibrillator", () => {
     act(() => result.current.shock());
     expect(result.current.spikeNonce).toBe(0);
     expect(result.current.defi.status).toBe("idle");
+  });
+});
+
+describe("useDeviceControls — tones", () => {
+  test("charge unlocks audio synchronously in the tap (before any effect)", () => {
+    const audio = mockAudio();
+    const { result } = renderHook(() => useDeviceControls(audio));
+    // Call the handler outside act() so no effects have flushed yet — this proves
+    // unlock() runs inside the gesture's own call stack, as WebKit requires.
+    result.current.charge();
+    expect(audio.unlock).toHaveBeenCalled();
+  });
+
+  test("charging plays the rising charge tone", () => {
+    const audio = mockAudio();
+    const { result } = renderHook(() => useDeviceControls(audio));
+    act(() => result.current.charge());
+    expect(audio.charge).toHaveBeenCalled();
+    expect(audio.ready).not.toHaveBeenCalled();
+  });
+
+  test("arming plays the ready tone after stopping the charge tone", () => {
+    const audio = mockAudio();
+    const { result } = renderHook(() => useDeviceControls(audio));
+    act(() => result.current.charge());
+    (audio.stop as ReturnType<typeof vi.fn>).mockClear();
+    act(() => vi.advanceTimersByTime(5500));
+    expect(audio.stop).toHaveBeenCalled(); // charge tone silenced on charging→armed
+    expect(audio.ready).toHaveBeenCalled();
+  });
+
+  test("shock stops the tones", () => {
+    const audio = mockAudio();
+    const { result } = renderHook(() => useDeviceControls(audio));
+    act(() => result.current.charge());
+    act(() => vi.advanceTimersByTime(5500));
+    (audio.stop as ReturnType<typeof vi.fn>).mockClear();
+    act(() => result.current.shock());
+    expect(audio.stop).toHaveBeenCalled();
+  });
+
+  test("cancel stops the tones", () => {
+    const audio = mockAudio();
+    const { result } = renderHook(() => useDeviceControls(audio));
+    act(() => result.current.charge());
+    act(() => vi.advanceTimersByTime(5500));
+    (audio.stop as ReturnType<typeof vi.fn>).mockClear();
+    act(() => result.current.cancel());
+    expect(audio.stop).toHaveBeenCalled();
+  });
+
+  test("unmounting while armed stops the tones", () => {
+    const audio = mockAudio();
+    const { result, unmount } = renderHook(() => useDeviceControls(audio));
+    act(() => result.current.charge());
+    act(() => vi.advanceTimersByTime(5500));
+    (audio.stop as ReturnType<typeof vi.fn>).mockClear();
+    unmount();
+    expect(audio.stop).toHaveBeenCalled();
   });
 });

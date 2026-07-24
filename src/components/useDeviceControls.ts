@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createDefiAudio, type DefiAudio } from "@/lib/defi-audio";
 import { type DefiStatus, defiTransition } from "@/lib/defibrillator";
 import { formatElapsed } from "@/lib/timer";
 
@@ -23,18 +24,38 @@ export interface DeviceControls {
   spikeNonce: number;
 }
 
-export function useDeviceControls(): DeviceControls {
+// The audio adapter is injectable so tests can assert the tone calls; production
+// uses the real Web Audio adapter, created once per hook instance.
+export function useDeviceControls(audio?: DefiAudio): DeviceControls {
   const [running, setRunning] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [status, setStatus] = useState<DefiStatus>("idle");
   const [chargeRemaining, setChargeRemaining] = useState<number | null>(null);
   const [spikeNonce, setSpikeNonce] = useState(0);
 
+  const audioRef = useRef<DefiAudio | null>(null);
+  if (!audioRef.current) audioRef.current = audio ?? createDefiAudio();
+  const tones = audioRef.current;
+
   useEffect(() => {
     if (!running) return;
     const id = setInterval(() => setElapsed((e) => e + 1), 1000);
     return () => clearInterval(id);
   }, [running]);
+
+  // Defi tones track the status: rising tone while charging, steady tone while
+  // armed. The cleanup silences the previous tone on every change — including on
+  // shock/cancel (→ idle) and on unmount.
+  useEffect(() => {
+    if (status === "charging") {
+      tones.charge();
+      return () => tones.stop();
+    }
+    if (status === "armed") {
+      tones.ready();
+      return () => tones.stop();
+    }
+  }, [status, tones]);
 
   // While charging, tick the rough countdown and arm after the full charge time.
   useEffect(() => {
@@ -64,7 +85,12 @@ export function useDeviceControls(): DeviceControls {
     }
   };
 
-  const charge = () => setStatus((s) => defiTransition(s, "charge").status);
+  const charge = () => {
+    // Unlock audio here, in the tap's own call stack (WebKit requirement); the
+    // rising tone itself is started by the status effect once we're charging.
+    tones.unlock();
+    setStatus((s) => defiTransition(s, "charge").status);
+  };
   const cancel = () => setStatus((s) => defiTransition(s, "cancel").status);
   // Reads `status` from the render's closure (not a functional update) because we
   // also need the transition's fireSpike flag. Safe: the Schock button is disabled
