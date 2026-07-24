@@ -133,6 +133,17 @@ describe("AdminView", () => {
     ).not.toBeInTheDocument();
   });
 
+  test("the admin mirror shows no local device controls (timer/defi)", () => {
+    stream = { state: state(), status: "open" };
+    render(<AdminView code="123456" token="t" />);
+    expect(
+      screen.queryByRole("button", { name: /Start|Stop/ }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Laden" }),
+    ).not.toBeInTheDocument();
+  });
+
   test("the mirror shows '– –' for a switched-off module, same as the monitors", () => {
     stream = {
       state: state({ modules: { ekg: true, pulsoxi: false } }),

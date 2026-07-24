@@ -37,9 +37,11 @@ export default function DeviceScreen({
         {fullscreen?.supported && <FullscreenToggle fullscreen={fullscreen} />}
       </div>
 
-      <div className={styles.body}>
+      <div
+        className={`${styles.body} ${controls ? styles.bodyWithTherapy : ""}`}
+      >
         <div className={styles.waves}>
-          <Waveforms state={state} />
+          <Waveforms state={state} spikeNonce={controls?.spikeNonce} />
         </div>
 
         <div className={styles.numbers}>
@@ -62,6 +64,8 @@ export default function DeviceScreen({
             value={readout.pulse}
           />
         </div>
+
+        {controls && <TherapyColumn controls={controls} />}
       </div>
 
       {reconnecting && (
@@ -92,6 +96,53 @@ function TimerControl({ controls }: { controls: DeviceControls }) {
       >
         {timer.label}
       </span>
+    </div>
+  );
+}
+
+// The defibrillator therapy column (right of the curves, like the corpuls1 therapy
+// keys): Laden charges, then the red Schock delivers or Abbrechen disarms. Schock is
+// only enabled once armed; charging shows a rough remaining-seconds countdown.
+function TherapyColumn({ controls }: { controls: DeviceControls }) {
+  const { defi, charge, shock, cancel } = controls;
+  const armed = defi.status === "armed";
+  return (
+    <div className={styles.therapy}>
+      <span className={styles.therapyTitle}>Defi</span>
+
+      {defi.status === "idle" && (
+        <button type="button" className={styles.laden} onClick={charge}>
+          Laden
+        </button>
+      )}
+      {defi.status === "charging" && (
+        <div
+          className={styles.charging}
+          role="status"
+          aria-label={`Lädt, noch ${defi.chargeRemaining} Sekunden`}
+        >
+          <span className={styles.chargeSpinner} aria-hidden="true" />
+          <span className={styles.chargeRemaining}>{defi.chargeRemaining}</span>
+        </div>
+      )}
+
+      <button
+        type="button"
+        className={`${styles.schock} ${armed ? styles.schockArmed : ""}`}
+        onClick={shock}
+        disabled={!armed}
+      >
+        <span className={styles.heart} aria-hidden="true">
+          ♥
+        </span>
+        Schock
+      </button>
+
+      {armed && (
+        <button type="button" className={styles.abbrechen} onClick={cancel}>
+          Abbrechen
+        </button>
+      )}
     </div>
   );
 }

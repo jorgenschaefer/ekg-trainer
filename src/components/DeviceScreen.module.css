@@ -136,6 +136,11 @@
   min-height: 0;
 }
 
+/* On the trainee monitor a third column carries the defibrillator therapy keys. */
+.bodyWithTherapy {
+  grid-template-columns: 1fr 15cqw 22cqw;
+}
+
 .waves {
   min-width: 0;
   min-height: 0;
@@ -192,6 +197,143 @@
 .spo2,
 .pulse {
   color: var(--pulsoxi-cyan);
+}
+
+/* Defibrillator therapy column — a set-apart panel on the right edge, echoing the
+   corpuls1 therapy keys. Sized in cqh/cqw so it scales with the device screen. */
+.therapy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.6cqh;
+  padding: 2cqh 1.4cqw;
+  border-left: 1px solid #d7d8d2;
+  background: #eef0eb;
+}
+
+.therapyTitle {
+  text-align: center;
+  font-size: 1.8cqh;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #6b6e68;
+}
+
+.laden,
+.schock,
+.abbrechen {
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  border: none;
+  border-radius: 1.2cqh;
+  letter-spacing: 0.02em;
+}
+
+.laden {
+  padding: 2.2cqh 1cqw;
+  font-size: 2.6cqh;
+  background: #c77d12;
+  color: #fff;
+}
+
+.laden:hover {
+  background: #b06d0c;
+}
+
+.schock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4cqh;
+  padding: 3cqh 1cqw;
+  font-size: 2.8cqh;
+  background: var(--error-red);
+  color: #fff;
+}
+
+.schock:disabled {
+  background: #e4d3d0;
+  color: #b79b97;
+  cursor: default;
+}
+
+.heart {
+  font-size: 4cqh;
+  line-height: 1;
+}
+
+.schockArmed {
+  animation: schockPulse 0.9s ease-in-out infinite;
+}
+
+@keyframes schockPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(192, 57, 43, 0.55);
+  }
+  50% {
+    box-shadow: 0 0 0 1.4cqh rgba(192, 57, 43, 0);
+  }
+}
+
+.abbrechen {
+  padding: 1.6cqh 1cqw;
+  font-size: 2.2cqh;
+  font-weight: 700;
+  background: transparent;
+  color: #6b6e68;
+  border: 1px solid #cfd0ca;
+}
+
+.abbrechen:hover {
+  background: #e2e3dd;
+}
+
+.laden:focus-visible,
+.schock:focus-visible,
+.abbrechen:focus-visible {
+  outline: 2px solid #1a1c1a;
+  outline-offset: 2px;
+}
+
+/* Charge indicator: a spinner plus a rough remaining-seconds count. */
+.charging {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1cqh;
+  color: #c77d12;
+  font-weight: 800;
+}
+
+.chargeSpinner {
+  width: 5cqh;
+  height: 5cqh;
+  border-radius: 50%;
+  border: 0.8cqh solid #ecdcc2;
+  border-top-color: #c77d12;
+  animation: chargeSpin 0.7s linear infinite;
+}
+
+.chargeRemaining {
+  font-family: "Barlow Condensed", system-ui, sans-serif;
+  font-size: 4cqh;
+  line-height: 1;
+}
+
+@keyframes chargeSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .schockArmed,
+  .chargeSpinner {
+    animation: none;
+  }
 }
 
 .pill {

@@ -71,10 +71,11 @@ describe("MonitorView", () => {
     ).not.toBeInTheDocument();
   });
 
-  test("shows the local device controls (timer Start button)", () => {
+  test("shows the local device controls (timer Start and defi Laden)", () => {
     stream = { state: INITIAL_STATE, status: "open" };
     render(<MonitorView code="123456" />);
     expect(screen.getByRole("button", { name: "Start" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Laden" })).toBeInTheDocument();
   });
 
   test("attaches the fullscreen target ref to its container", () => {

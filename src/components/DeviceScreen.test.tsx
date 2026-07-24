@@ -4,6 +4,14 @@ import type { SessionState } from "@/lib/session-state";
 import DeviceScreen from "./DeviceScreen";
 import type { DeviceControls } from "./useDeviceControls";
 
+// Stub the canvas renderer so we can assert which spikeNonce DeviceScreen forwards
+// to it (the real sweep is covered in Waveforms.test.tsx).
+vi.mock("./Waveforms", () => ({
+  default: ({ spikeNonce }: { spikeNonce?: number }) => (
+    <div data-testid="pleth-curve" data-spike-nonce={String(spikeNonce)} />
+  ),
+}));
+
 afterEach(cleanup);
 
 function state(overrides: Partial<SessionState> = {}): SessionState {
@@ -19,6 +27,11 @@ function controls(overrides: Partial<DeviceControls> = {}): DeviceControls {
   return {
     timer: { running: false, label: "00:00" },
     toggleTimer: vi.fn(),
+    defi: { status: "idle", chargeRemaining: null },
+    charge: vi.fn(),
+    shock: vi.fn(),
+    cancel: vi.fn(),
+    spikeNonce: 0,
     ...overrides,
   };
 }
@@ -205,6 +218,114 @@ describe("DeviceScreen", () => {
       expect(
         screen.queryByRole("button", { name: /Start|Stop/ }),
       ).not.toBeInTheDocument();
+    });
+  });
+
+  describe("defibrillator", () => {
+    test("idle offers Laden and a disabled Schock", () => {
+      render(
+        <DeviceScreen
+          state={state()}
+          mode="MONITOR"
+          controls={controls({
+            defi: { status: "idle", chargeRemaining: null },
+          })}
+        />,
+      );
+      expect(screen.getByRole("button", { name: "Laden" })).toBeEnabled();
+      expect(screen.getByRole("button", { name: /Schock/ })).toBeDisabled();
+      expect(
+        screen.queryByRole("button", { name: "Abbrechen" }),
+      ).not.toBeInTheDocument();
+    });
+
+    test("charging shows the remaining seconds and keeps Schock disabled", () => {
+      render(
+        <DeviceScreen
+          state={state()}
+          mode="MONITOR"
+          controls={controls({
+            defi: { status: "charging", chargeRemaining: 3 },
+          })}
+        />,
+      );
+      expect(screen.getByText("3")).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /Schock/ })).toBeDisabled();
+      expect(
+        screen.queryByRole("button", { name: "Laden" }),
+      ).not.toBeInTheDocument();
+    });
+
+    test("armed enables Schock and offers Abbrechen", () => {
+      render(
+        <DeviceScreen
+          state={state()}
+          mode="MONITOR"
+          controls={controls({
+            defi: { status: "armed", chargeRemaining: null },
+          })}
+        />,
+      );
+      expect(screen.getByRole("button", { name: /Schock/ })).toBeEnabled();
+      expect(screen.getByRole("button", { name: "Abbrechen" })).toBeEnabled();
+      expect(
+        screen.queryByRole("button", { name: "Laden" }),
+      ).not.toBeInTheDocument();
+    });
+
+    test("the therapy buttons call their handlers", () => {
+      const charge = vi.fn();
+      const shock = vi.fn();
+      const cancel = vi.fn();
+      const { rerender } = render(
+        <DeviceScreen
+          state={state()}
+          mode="MONITOR"
+          controls={controls({ charge })}
+        />,
+      );
+      screen.getByRole("button", { name: "Laden" }).click();
+      expect(charge).toHaveBeenCalledOnce();
+      rerender(
+        <DeviceScreen
+          state={state()}
+          mode="MONITOR"
+          controls={controls({
+            defi: { status: "armed", chargeRemaining: null },
+            shock,
+            cancel,
+          })}
+        />,
+      );
+      screen.getByRole("button", { name: /Schock/ }).click();
+      expect(shock).toHaveBeenCalledOnce();
+      screen.getByRole("button", { name: "Abbrechen" }).click();
+      expect(cancel).toHaveBeenCalledOnce();
+    });
+
+    test("forwards the controls spikeNonce to the waveform renderer", () => {
+      render(
+        <DeviceScreen
+          state={state()}
+          mode="MONITOR"
+          controls={controls({ spikeNonce: 7 })}
+        />,
+      );
+      expect(screen.getByTestId("pleth-curve")).toHaveAttribute(
+        "data-spike-nonce",
+        "7",
+      );
+    });
+
+    test("is absent without a controls prop (admin mirror)", () => {
+      render(<DeviceScreen state={state()} mode="ADMIN" />);
+      expect(
+        screen.queryByRole("button", { name: "Laden" }),
+      ).not.toBeInTheDocument();
+      expect(screen.getByTestId("pleth-curve")).toHaveAttribute(
+        "data-spike-nonce",
+        "undefined",
+      );
     });
   });
 });
