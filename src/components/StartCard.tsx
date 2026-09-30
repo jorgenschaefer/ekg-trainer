@@ -4,6 +4,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import styles from "./StartCard.module.css";
 
+// The AGPL asks a network service to offer its source to its users.
+const SOURCE_URL = "https://github.com/jorgenschaefer/ekg-trainer";
+
 const JOIN_ERROR = "Code unbekannt oder Sitzung abgelaufen.";
 
 export default function StartCard() {
@@ -98,6 +101,10 @@ export default function StartCard() {
         >
           Neu
         </button>
+
+        <a className={styles.source} href={SOURCE_URL}>
+          Quellcode
+        </a>
       </div>
     </main>
   );

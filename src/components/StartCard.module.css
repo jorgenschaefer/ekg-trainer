@@ -125,3 +125,16 @@
   background: var(--error-red);
   flex: none;
 }
+
+.source {
+  display: block;
+  margin-top: 18px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: #8a8d86;
+}
+
+.source:focus-visible {
+  outline: 2px solid var(--admin-blue);
+  outline-offset: 2px;
+}

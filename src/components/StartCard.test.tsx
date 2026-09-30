@@ -89,4 +89,12 @@ describe("StartCard", () => {
     );
     expect(localStorage.getItem("admin:654321")).toBe("secret-token");
   });
+
+  test("links to the source code, as the AGPL asks of a network service", () => {
+    render(<StartCard />);
+    expect(screen.getByRole("link", { name: /quellcode/i })).toHaveAttribute(
+      "href",
+      "https://github.com/jorgenschaefer/ekg-trainer",
+    );
+  });
 });
