@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A web-based defibrillator/patient-monitor simulator for resuscitation training. An instructor opens a session and gets a 4-digit code plus a secret admin link; trainees join that code on their own devices and see a live EKG monitor. The instructor drives the rhythm, compressions ("Drückt"), defib spikes, and which modules (EKG leads, pulse oximeter) are connected — every joined monitor updates in real time. The UI is in German.
+A web-based defibrillator/patient-monitor simulator for resuscitation training. An instructor opens a session and gets a 4-digit code plus a secret admin link; trainees join that code on their own devices and see a live EKG monitor. The instructor drives the rhythm, compressions ("Drückt"), and which modules (EKG leads, pulse oximeter) are connected — every joined monitor updates in real time. Each trainee monitor also has its own local defibrillator (Laden/Schock/Abbrechen) and resuscitation stopwatch, which never touch the server. The UI is in German.
 
 ## Commands
 
@@ -41,7 +41,7 @@ The server broadcasts **only `SessionState`** (`src/lib/session-state.ts`): the 
 - `src/lib/session-store.ts` — the single process-wide instance, stashed on `globalThis` so dev hot-reload doesn't drop live sessions, with an idle-sweep `setInterval`. **The whole design assumes one long-running Node instance** — on serverless/edge the `Map` wouldn't be shared and sync would silently break. All API routes are `runtime = "nodejs"`, `dynamic = "force-dynamic"`.
 - API routes under `src/app/api/session/`:
   - `POST /api/session` → create session.
-  - `GET /api/session/[code]/stream` → SSE. First write is a full state snapshot; every change is another full snapshot, plus `spike` and terminal `ended` events. Connecting and each 20s keepalive `touch`es the session to keep it alive.
+  - `GET /api/session/[code]/stream` → SSE. First write is a full state snapshot; every change is another full snapshot, plus a terminal `ended` event. Connecting and each 20s keepalive `touch`es the session to keep it alive.
   - `POST /api/session/[code]/control` → apply one command.
 
 ### Auth model: code joins, token controls
@@ -50,11 +50,12 @@ The 4-digit **code** is public (it's how monitors join). The **admin token** is 
 
 ### Commands are a closed, validated vocabulary
 
-`src/lib/commands.ts` defines the only `Command` types (`setRhythm`, `setDrueckt`, `setModule`, `spike`) and `parseCommand` validates every field against the catalog and key whitelists, so a malformed or stray request can never push unknown state to monitors. `spike` is a fire-and-forget event (broadcast as `{type:"spike"}`); everything else broadcasts a full state snapshot. Adding a control means: extend `Command` + `parseCommand` + the `applyControl` switch + the admin UI.
+`src/lib/commands.ts` defines the only `Command` types (`setRhythm`, `setDrueckt`, `setModule`) and `parseCommand` validates every field against the catalog and key whitelists, so a malformed or stray request can never push unknown state to monitors. Every command broadcasts a full state snapshot. Adding a control means: extend `Command` + `parseCommand` + the `applyControl` switch + the admin UI.
 
 ### Client rendering
 
-- `useSessionStream` (`src/components/useSessionStream.ts`) — subscribes to the SSE stream, exposes `{ state, status, spikeNonce }`. Native `EventSource` auto-reconnects; a brief drop only flashes the reconnect pill after a 1s debounce while the curve keeps running on the last synced state. Only a definitive `ended` shows the terminal screen — a transient drop must never read as asystole.
+- `useSessionStream` (`src/components/useSessionStream.ts`) — subscribes to the SSE stream, exposes `{ state, status }`. Native `EventSource` auto-reconnects; a brief drop only flashes the reconnect pill after a 1s debounce while the curve keeps running on the last synced state. Only a definitive `ended` shows the terminal screen — a transient drop must never read as asystole.
+- `useDeviceControls` (`src/components/useDeviceControls.ts`) — the monitor's local stopwatch and defibrillator (`src/lib/timer.ts`, `src/lib/defibrillator.ts`, tones in `src/lib/defi-audio.ts`). A local Schock bumps `spikeNonce`, which `Waveforms` turns into the spike artifact on that device only.
 - `src/lib/waveform.ts` — pure waveform sampling, sampled fresh every animation frame so a rhythm switch lands immediately (even mid-compression). `ekgFrameSample` resolves precedence: leads disconnected → flat; live defib spike → spike artifact; `drueckt` → compression artifact; else the rhythm. Outputs carry no measured value, so exact phase need not match between devices.
 - `Waveforms.tsx` — the canvas sweep renderer. It draws a moving head and erases a small gap ahead of it. The loop self-corrects against stalls (hidden tab, occluded/blurred window, rAF throttling, sleep): a frame gap larger than `STALL_GAP_S` means the loop paused, so it fully clears and restarts the sweep rather than streaking the old trace across.
 
