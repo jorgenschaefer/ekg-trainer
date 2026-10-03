@@ -5,3 +5,8 @@ coverage
 *.log
 .env
 .env.*
+
+# Encrypted production secrets and their recipients; bin/deploy-prod sends
+# the secrets to the server.
+secrets.prod.env
+.sops.yaml
