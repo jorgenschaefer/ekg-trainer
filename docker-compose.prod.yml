@@ -1,6 +1,7 @@
 services:
   app:
-    image: registry.drk-barmbek.de/ekg/app:latest
+    image: ekg/app:latest
+    pull_policy: never
     restart: always
     build: .
     ports:
