@@ -22,7 +22,7 @@ npm run format       # biome check --write (apply lint/format fixes)
 
 Linting/formatting is [Biome](https://biomejs.dev) (`biome.json`): recommended preset, 2-space indent, import organizing on. `npm run lint` typechecks then runs `biome check`; `npm run format` applies safe fixes. Tests remain the primary quality gate.
 
-Deploy: `bin/deploy-prod` builds the Docker image, streams it to `drk-barmbek.de` with `docker save`, and restarts the stack there over SSH. Runs as a Next standalone server (`output: "standalone"`).
+Deploy: `bin/deploy-prod` builds the Docker image from `compose.prod.yaml`, streams it to `drk-barmbek.de` with `docker save`, copies the file to `~/ekg` as `compose.yaml` and restarts the Compose project `ekg` there over SSH. The app listens on `127.0.0.1:3007` and as `ekg` on the external network `service_network`, which must exist on the server. Runs as a Next standalone server (`output: "standalone"`).
 
 ## Architecture
 

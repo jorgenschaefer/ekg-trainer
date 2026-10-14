@@ -1,0 +1,19 @@
+name: ekg
+
+services:
+  app:
+    image: ekg/app:latest
+    pull_policy: never
+    restart: unless-stopped
+    build: .
+    ports:
+      - "127.0.0.1:3007:3000"
+    networks:
+      service_network:
+        aliases:
+          - ekg
+
+networks:
+  service_network:
+    name: service_network
+    external: true
