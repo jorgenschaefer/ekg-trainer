@@ -1,6 +1,6 @@
 ---
 effort: XS
-utility: M
+value: M
 ---
 
 # Während „Drückt“: keine HF, kein SpO2, kein Puls
